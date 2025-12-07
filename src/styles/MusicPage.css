@@ -1,0 +1,327 @@
+.music-page {
+    min-height: 100vh;
+    padding: 6rem 4rem;
+    background-color: var(--bg-color);
+    color: white;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.music-header {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.music-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.music-subtitle {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.music-desc {
+    color: #ccc;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Discogs Button (styled like CV buttons) */
+.discogs-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-top: 1rem;
+    will-change: auto;
+    transform: translate3d(0, 0, 0);
+}
+
+.discogs-btn:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Charts Area */
+.music-charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 6rem;
+}
+
+.chart-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+
+}
+
+.chart-title {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #ddd;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.chart-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Remove default focus outline from charts */
+.recharts-wrapper,
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible,
+.recharts-surface:focus,
+.recharts-layer:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Hover effect for genre ticks */
+.genre-axis-tick {
+    transition: opacity 0.2s;
+}
+
+.genre-axis-tick:hover .genre-tick-rect {
+    fill: rgba(255, 255, 255, 0.2) !important;
+    stroke: var(--accent-color) !important;
+    stroke-width: 1px;
+}
+
+.genre-axis-tick:hover text {
+    fill: white !important;
+}
+
+/* Collection Grid */
+.collection-section {
+    width: 100%;
+}
+
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.record-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.record-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.record-cover-container {
+    width: 100%;
+    aspect-ratio: 1;
+    position: relative;
+    background: #111;
+    overflow: hidden;
+}
+
+.record-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.record-card:hover .record-cover {
+    transform: scale(1.05);
+}
+
+.record-overlay {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: white;
+    font-weight: 600;
+}
+
+.record-info {
+    padding: 1rem;
+}
+
+.record-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.record-artist {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.record-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.record-genre-tag {
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Spotify Play Button */
+.spotify-play-btn {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1DB954;
+    /* Spotify green */
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+}
+
+.record-card:hover .spotify-play-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.spotify-play-btn:hover {
+    background: #1ed760;
+    transform: scale(1.1);
+}
+
+/* Spotify Modal */
+.spotify-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.spotify-modal-content {
+    background: #181818;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+}
+
+.spotify-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.spotify-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.spotify-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    padding-right: 2rem;
+}
+
+.spotify-modal-artist {
+    font-size: 1rem;
+    color: #b3b3b3;
+    margin-bottom: 1.5rem;
+}
+
+.spotify-modal-note {
+    text-align: center;
+    color: #b3b3b3;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+}
+
+
+@media (max-width: 900px) {
+    .music-page {
+        padding: 4rem 1.5rem;
+        padding-top: 6rem;
+    }
+
+    .music-charts-container {
+        grid-template-columns: 1fr;
+    }
+
+    .collection-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+}

@@ -1,0 +1,19 @@
+.map-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.map-section {
+    display: flex;
+    position: relative;
+    width: 100%;
+}
+
+/* Mobile Overlay Layout */
+@media (max-width: 768px) {
+    .map-section {
+        display: block;
+        /* Stack them, but map will be fixed */
+    }
+}

@@ -1,0 +1,38 @@
+.map-container {
+    height: 100vh;
+    width: 50%;
+    position: sticky;
+    top: 0;
+    right: 0;
+    z-index: 0;
+}
+
+.map-overlay-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, var(--bg-color) 0%, transparent 15%);
+    pointer-events: none;
+    z-index: 400;
+    /* Above map tiles but below controls if any */
+}
+
+@media (max-width: 768px) {
+    .map-container {
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        /* Fixed background */
+        top: 0;
+        left: 0;
+        z-index: 0;
+        /* Behind content */
+    }
+
+    .map-overlay-gradient {
+        background: linear-gradient(to bottom, var(--bg-color) 0%, transparent 20%, transparent 80%, var(--bg-color) 100%);
+        pointer-events: none;
+    }
+}
