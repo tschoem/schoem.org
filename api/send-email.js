@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
         const mailOptions = {
             from: `"${name}" <${process.env.SMTP_USER}>`,
-            to: 'thomas.schoemaecker@gmail.com',
+            to: 'tom@schoem.org',
             replyTo: email,
             subject: `New Message from Portfolio Website: ${name}`,
             text: `

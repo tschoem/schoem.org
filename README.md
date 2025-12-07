@@ -20,7 +20,7 @@ A premium, interactive personal portfolio website built with React, Vite, and No
 ## 🛠️ Tech Stack
 
 *   **Frontend**: React, Vite, Framer Motion (Animations), Leaflet (Maps), Recharts (Data Viz).
-*   **Backend**: Node.js, Express (Server), Nodemailer (Email).
+*   **Backend**: Node.js, Vercel Serverless Functions, Nodemailer (Email).
 *   **Styling**: Custom CSS with responsive design and glassmorphism effects.
 *   **Data**: JSON-based storage with automated fetch scripts.
 
@@ -73,20 +73,28 @@ npm run fetch-discogs
 npm run enrich-spotify
 ```
 
-### Production Build & Deployment
-The build command automatically chains the data fetching scripts to ensure the site is always fresh when deployed.
+### Production Deployment (Vercel)
+This project is optimized for deployment on [Vercel](https://vercel.com).
 
-1.  **Build the application**:
-    ```bash
-    npm run build
-    ```
-    *This executes: `fetch-discogs` -> `enrich-spotify` -> `vite build`*
+1.  **Push to GitHub**: Connect your repository to Vercel.
+2.  **Environment Variables**:
+    In your Vercel Project Settings, add the following Environment Variables (same as your `.env`):
+    *   `DISCOGS_TOKEN`
+    *   `SPOTIFY_CLIENT_ID`
+    *   `SPOTIFY_CLIENT_SECRET`
+    *   `SMTP_HOST`
+    *   `SMTP_PORT`
+    *   `SMTP_USER`
+    *   `SMTP_PASS`
+3.  **Deploy**: Vercel will automatically detect the Vite settings and the `/api` directory for serverless functions. Use the standard override build command:
+    `npm run build`
 
-2.  **Start the Production Server**:
-    To serve the static site AND handle email API requests:
-    ```bash
-    node server.js
-    ```
+### Legacy / Alternative Production
+If you are NOT using Vercel, you can serve the static build and providing the API via the included Express server:
+```bash
+npm run build
+node server.js
+```
 
 ## 📁 Project Structure
 
@@ -95,4 +103,5 @@ The build command automatically chains the data fetching scripts to ensure the s
 *   `src/data`: JSON data files (CV, Leadership, and fetched Music data).
 *   `scripts`: Node.js scripts for fetching and enriching data.
 *   `public`: Static assets (images).
-*   `server.js`: Express backend for serving the app and handling emails.
+*   `api/send-email.js`: Vercel Serverless Function for handling contact form emails.
+*   `server.js`: Express backend (legacy/local alternative).

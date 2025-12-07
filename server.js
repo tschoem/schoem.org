@@ -51,7 +51,7 @@ app.post('/api/send-email', async (req, res) => {
         // Email Options
         const mailOptions = {
             from: `"${name}" <${process.env.SMTP_USER}>`, // Sender address (must often be same as auth user)
-            to: 'thomas.schoemaecker@gmail.com', // Your email
+            to: 'tom@schoem.org', // Your email
             replyTo: email, // Valid reply-to address
             subject: `New Message from Portfolio Website: ${name}`,
             text: `
