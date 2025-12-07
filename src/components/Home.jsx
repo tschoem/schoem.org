@@ -69,9 +69,9 @@ const Home = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4, duration: 0.8 }}
                 >
-                    <a href="#" className="social-link">LinkedIn</a>
-                    <a href="#" className="social-link">GitHub</a>
-                    <a href="#" className="social-link">Email</a>
+                    <a href="https://www.linkedin.com/in/tomschoem/" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                    <a href="https://github.com/tschoem" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <Link to="/contact" className="social-link">Email</Link>
                 </motion.div>
             </div>
         </div>
