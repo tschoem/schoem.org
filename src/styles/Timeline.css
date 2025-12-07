@@ -54,21 +54,16 @@
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     position: relative;
-    /* Context for absolute images */
-    /* Maintain aspect ratio of the first image roughly */
-    min-height: 300px;
+    aspect-ratio: 4 / 3;
+    background: #111;
 }
 
 .timeline-image {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
     transition: transform 0.5s ease;
-    /* Position absolute is handled inline for index > 0, 
-     but we need to ensure the container height is set by the first one 
-     OR we set a fixed aspect ratio.
-     Since index 0 is 'relative', it defines the container height.
-  */
 }
 
 .timeline-image:hover {

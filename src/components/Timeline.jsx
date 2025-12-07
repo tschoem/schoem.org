@@ -59,10 +59,10 @@ const ImageSequence = ({ images, itemRef }) => {
                         className="timeline-image"
                         style={{
                             opacity: finalOpacity,
-                            position: index === 0 ? 'relative' : 'absolute',
+                            position: 'absolute',
                             top: 0,
                             left: 0,
-                            zIndex: length - index // Ensure stacking order if needed, though opacity handles visibility
+                            zIndex: length - index
                         }}
                     />
                 );
