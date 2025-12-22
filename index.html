@@ -17,10 +17,21 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
+    /* Hidden link for crawlers - GetSongBPM backlink */
+    .crawler-link {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
   </style>
 </head>
 
 <body>
+  <!-- GetSongBPM backlink for API verification (visible to crawlers) -->
+  <a href="https://getsongbpm.com/" rel="noopener" class="crawler-link">GetSongBPM</a>
+  
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
