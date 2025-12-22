@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ScatterChart, Scatter, ZAxis, CartesianGrid } from 'recharts';
 import discogsData from '../data/discogsData.json';
+import MixCreator from './MixCreator';
 
 import '../styles/MusicPage.css';
 
@@ -12,6 +13,20 @@ const MusicPage = () => {
     const [sortBy, setSortBy] = useState('added-desc'); // format: 'field-direction'
     // State for Spotify player modal
     const [selectedAlbum, setSelectedAlbum] = useState(null); // Album to play in modal
+    // State for mix creator
+    const [showMixCreator, setShowMixCreator] = useState(false);
+
+    // Auto-open MixCreator after successful Spotify authentication
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const spotifyAuth = urlParams.get('spotify_auth');
+        
+        if (spotifyAuth === 'success') {
+            // Open the mix creator modal
+            // Don't clean URL yet - let MixCreator handle the token first
+            setShowMixCreator(true);
+        }
+    }, []);
 
     // Helper: Determine which dataset to use for a chart
     // If the chart controls the current filter, show ALL data (to let user switch).
@@ -319,18 +334,59 @@ const MusicPage = () => {
                             </button>
                         )}
                     </p>
-                    <a
-                        href="https://www.discogs.com/user/tomschoem/collection"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="discogs-btn"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        View on Discogs
-                    </a>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
+                        <button
+                            onClick={() => {
+                                console.log('Create Mix clicked, opening modal...');
+                                setShowMixCreator(true);
+                            }}
+                            className="create-mix-header-btn"
+                            style={{
+                                background: 'rgba(93, 93, 255, 0.3)',
+                                border: '2px solid #5d5dff',
+                                color: 'white',
+                                padding: '0.75rem 1.5rem',
+                                borderRadius: '30px',
+                                cursor: 'pointer',
+                                fontSize: '1rem',
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontWeight: '600',
+                                boxShadow: '0 4px 15px rgba(93, 93, 255, 0.3)'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(93, 93, 255, 0.5)';
+                                e.target.style.transform = 'scale(1.05)';
+                                e.target.style.boxShadow = '0 6px 20px rgba(93, 93, 255, 0.4)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(93, 93, 255, 0.3)';
+                                e.target.style.transform = 'scale(1)';
+                                e.target.style.boxShadow = '0 4px 15px rgba(93, 93, 255, 0.3)';
+                            }}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 18V5l12-2v13"></path>
+                                <circle cx="6" cy="18" r="3"></circle>
+                                <circle cx="18" cy="16" r="3"></circle>
+                            </svg>
+                            Create Mix
+                        </button>
+                        <a
+                            href="https://www.discogs.com/user/tomschoem/collection"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="discogs-btn"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            View on Discogs
+                        </a>
+                    </div>
                 </motion.div>
             </header>
 
@@ -596,6 +652,20 @@ const MusicPage = () => {
                             </p>
                         </motion.div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Mix Creator Modal */}
+            <AnimatePresence>
+                {showMixCreator && (
+                    <MixCreator
+                        records={filteredRecords}
+                        onClose={() => setShowMixCreator(false)}
+                        onMixCreated={(playlist) => {
+                            console.log('Mix created:', playlist);
+                            setShowMixCreator(false);
+                        }}
+                    />
                 )}
             </AnimatePresence>
         </div>
