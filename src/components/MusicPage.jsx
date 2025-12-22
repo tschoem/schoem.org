@@ -319,18 +319,33 @@ const MusicPage = () => {
                             </button>
                         )}
                     </p>
-                    <a
-                        href="https://www.discogs.com/user/tomschoem/collection"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="discogs-btn"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        View on Discogs
-                    </a>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
+                        <a
+                            href="https://www.discogs.com/user/tomschoem/collection"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="discogs-btn"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            View on Discogs
+                        </a>
+                        <a
+                            href="https://getsongbpm.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="discogs-btn"
+                            style={{ background: 'rgba(93, 93, 255, 0.1)', borderColor: 'rgba(93, 93, 255, 0.5)' }}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 6v12M8 10h8M8 14h8"></path>
+                            </svg>
+                            GetSongBPM
+                        </a>
+                    </div>
                 </motion.div>
             </header>
 
