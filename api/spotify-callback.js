@@ -62,6 +62,14 @@ export default async function handler(req, res) {
         const tokenData = await tokenResponse.json();
         const { access_token, refresh_token, expires_in } = tokenData;
 
+        // Log refresh token for easy extraction (only in development)
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('\n=== SPOTIFY REFRESH TOKEN ===');
+            console.log('Copy this refresh token to your environment variables:');
+            console.log(refresh_token);
+            console.log('================================\n');
+        }
+
         // Redirect to frontend with tokens (in production, store these securely server-side)
         // For now, we'll pass them as URL params and the frontend will store them
         // Use the request host to determine the correct port

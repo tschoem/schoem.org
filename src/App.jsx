@@ -12,7 +12,7 @@ import MusicPage from './components/MusicPage';
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
       <div className="app-container">
         <Navbar />

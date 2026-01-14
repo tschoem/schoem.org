@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ScatterChart, Scatter, ZAxis, CartesianGrid } from 'recharts';
 import discogsData from '../data/discogsData.json';
 import MixCreator from './MixCreator';
+import VinylLabelGenerator from './VinylLabelGenerator.jsx';
+import MusicPlayer from './MusicPlayer';
 
 import '../styles/MusicPage.css';
 
@@ -11,8 +13,11 @@ const MusicPage = () => {
   const [filter, setFilter] = useState(null); // { type: 'year' | 'added' | 'style' | 'genre', value: number | string }
   // State for sorting
   const [sortBy, setSortBy] = useState('added-desc'); // format: 'field-direction'
-  // State for Spotify player modal
-  const [selectedAlbum, setSelectedAlbum] = useState(null); // Album to play in modal
+  // State for Spotify player modal (kept for backward compatibility, but not used)
+  const [selectedAlbum, setSelectedAlbum] = useState(null);
+  // State for bottom-docked music player
+  const [currentTrack, setCurrentTrack] = useState(null); // Track to play
+  const [currentAlbum, setCurrentAlbum] = useState(null); // Album to play
   // State for mix creator
   const [showMixCreator, setShowMixCreator] = useState(false);
 
@@ -337,35 +342,9 @@ const MusicPage = () => {
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
             <button
               onClick={() => {
-                console.log('Create Mix clicked, opening modal...');
                 setShowMixCreator(true);
               }}
-              className="create-mix-header-btn"
-              style={{
-                background: 'rgba(93, 93, 255, 0.3)',
-                border: '2px solid #5d5dff',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '30px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '600',
-                boxShadow: '0 4px 15px rgba(93, 93, 255, 0.3)'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'rgba(93, 93, 255, 0.5)';
-                e.target.style.transform = 'scale(1.05)';
-                e.target.style.boxShadow = '0 6px 20px rgba(93, 93, 255, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'rgba(93, 93, 255, 0.3)';
-                e.target.style.transform = 'scale(1)';
-                e.target.style.boxShadow = '0 4px 15px rgba(93, 93, 255, 0.3)';
-              }}
+              className="discogs-btn"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18V5l12-2v13"></path>
@@ -386,7 +365,7 @@ const MusicPage = () => {
               </svg>
               View on Discogs
             </a>
-            <a
+            {/* <a
               href="https://getsongbpm.com/"
               target="_blank"
               rel="noopener"
@@ -398,7 +377,7 @@ const MusicPage = () => {
                 <path d="M12 6v12M8 10h8M8 14h8"></path>
               </svg>
               GetSongBPM
-            </a>
+            </a> */}
           </div>
         </motion.div>
       </header>
@@ -590,18 +569,26 @@ const MusicPage = () => {
                 <div className="record-overlay">
                   <span className="record-year">{item.year}</span>
                 </div>
-                {item.spotify_id && (
-                  <button
-                    className="spotify-play-btn"
-                    onClick={() => setSelectedAlbum(item)}
-                    aria-label="Play on Spotify"
-                    title="Play on Spotify"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </button>
-                )}
+                <div className="record-actions">
+                  {item.spotify_id && (
+                    <button
+                      className="spotify-play-btn"
+                      onClick={() => {
+                        setCurrentAlbum(item);
+                        setCurrentTrack(null);
+                      }}
+                      aria-label="Play on Spotify"
+                      title="Play on Spotify"
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </button>
+                  )}
+                  {item.tracklist && item.tracklist.length > 0 && (
+                    <VinylLabelGenerator record={item} />
+                  )}
+                </div>
               </div>
               <div className="record-info">
                 <h4 className="record-title">{item.title}</h4>
@@ -675,8 +662,27 @@ const MusicPage = () => {
             records={filteredRecords}
             onClose={() => setShowMixCreator(false)}
             onMixCreated={(playlist) => {
-              console.log('Mix created:', playlist);
-              setShowMixCreator(false);
+              // Don't close the mix creator immediately - let user see the preview
+              // The user can close it manually after viewing the playlist
+              console.log('Playlist created:', playlist);
+            }}
+            onPlayTrack={(track) => {
+              setCurrentTrack(track);
+              setCurrentAlbum(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Bottom-Docked Music Player */}
+      <AnimatePresence>
+        {(currentTrack || currentAlbum) && (
+          <MusicPlayer
+            currentTrack={currentTrack}
+            currentAlbum={currentAlbum}
+            onClose={() => {
+              setCurrentTrack(null);
+              setCurrentAlbum(null);
             }}
           />
         )}

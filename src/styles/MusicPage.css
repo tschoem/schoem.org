@@ -1,6 +1,6 @@
 .music-page {
     min-height: 100vh;
-    padding: 6rem 4rem;
+    padding: 6rem 4rem 8rem 4rem; /* Extra bottom padding for music player */
     background-color: var(--bg-color);
     color: white;
     max-width: 1400px;
@@ -211,10 +211,24 @@
 }
 
 /* Spotify Play Button */
-.spotify-play-btn {
+.record-actions {
     position: absolute;
     bottom: 1rem;
     right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+}
+
+.record-card:hover .record-actions {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.spotify-play-btn {
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -226,20 +240,47 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 10;
-}
-
-.record-card:hover .spotify-play-btn {
-    opacity: 1;
-    transform: scale(1);
+    transition: all 0.3s ease;
 }
 
 .spotify-play-btn:hover {
     background: #1ed760;
     transform: scale(1.1);
+}
+
+.vinyl-label-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px;
+    transition: all 0.3s ease;
+    font-size: 8px;
+    font-weight: 600;
+}
+
+.vinyl-label-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
+.vinyl-label-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.vinyl-label-btn span {
+    font-size: 7px;
+    line-height: 1;
 }
 
 /* Spotify Modal */

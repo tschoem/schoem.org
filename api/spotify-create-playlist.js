@@ -7,15 +7,63 @@ export default async function handler(req, res) {
 
     const { accessToken, playlistName, description, trackUris } = req.body;
 
-    if (!accessToken || !playlistName || !trackUris || !Array.isArray(trackUris)) {
+    if (!playlistName || !trackUris || !Array.isArray(trackUris)) {
         return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    // Get access token - either from request or from server-side refresh token
+    let access_token = accessToken;
+    
+    if (!access_token) {
+        // Try to get token from server using refresh token
+        const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+        const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+        const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+
+        if (!SPOTIFY_REFRESH_TOKEN) {
+            return res.status(401).json({ 
+                error: 'No access token provided and no refresh token configured. Please authenticate.' 
+            });
+        }
+
+        try {
+            const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+                },
+                body: new URLSearchParams({
+                    grant_type: 'refresh_token',
+                    refresh_token: SPOTIFY_REFRESH_TOKEN
+                })
+            });
+
+            if (!tokenResponse.ok) {
+                const errorData = await tokenResponse.json();
+                console.error('Token refresh error:', errorData);
+                return res.status(tokenResponse.status).json({ 
+                    error: 'Failed to refresh access token',
+                    details: errorData 
+                });
+            }
+
+            const tokenData = await tokenResponse.json();
+            access_token = tokenData.access_token;
+        } catch (error) {
+            console.error('Token refresh error:', error);
+            return res.status(500).json({ 
+                error: 'Failed to get access token from refresh token',
+                details: error.message 
+            });
+        }
     }
 
     try {
         // Get user profile to get user ID
         const userResponse = await fetch('https://api.spotify.com/v1/me', {
             headers: {
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${access_token}`
             }
         });
 
@@ -34,7 +82,7 @@ export default async function handler(req, res) {
         const createResponse = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                'Authorization': `Bearer ${access_token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -63,7 +111,7 @@ export default async function handler(req, res) {
             const addResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
+                    'Authorization': `Bearer ${access_token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({

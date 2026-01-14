@@ -134,7 +134,12 @@ app.get('/api/spotify-callback', async (req, res) => {
   }
 });
 
-// Spotify API POST routes (for local development)
+// Spotify API routes (for local development)
+app.get('/api/spotify-get-token', async (req, res) => {
+  const handler = (await import('./api/spotify-get-token.js')).default;
+  return handler(req, res);
+});
+
 app.post('/api/spotify-create-playlist', async (req, res) => {
   const handler = (await import('./api/spotify-create-playlist.js')).default;
   return handler(req, res);

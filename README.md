@@ -11,7 +11,7 @@ A premium, interactive personal portfolio website built with React, Vite, and No
 *   **Music Collection**:
     *   **Data-Driven**: Automatically fetches vinyl collection from **Discogs** with full tracklists.
     *   **Spotify Integration**: Enriches albums with Spotify metadata for audio previews.
-    *   **Last.fm Integration**: Enriches tracks with popularity metrics (playcount, listeners, tags).
+    *   **GetSongBPM Integration**: Enriches tracks with BPM, key, danceability, and energy data.
     *   **Interactive UI**: Sortable grid, filtering charts, and embedded player.
 *   **Contact**:
     *   **Enquiry Form**: Functional contact form powered by a localized Node.js backend.
@@ -49,8 +49,8 @@ A premium, interactive personal portfolio website built with React, Vite, and No
     SPOTIFY_CLIENT_ID=your_spotify_client_id
     SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 
-    # Last.fm API (Optional - for track popularity metrics)
-    LASTFM_API_KEY=your_lastfm_api_key
+    # GetSongBPM API (Optional - for track BPM, key, danceability)
+    GETSONGBPM_API_KEY=your_getsongbpm_api_key
 
     # SMTP Configuration (For Contact Form)
     SMTP_HOST=smtp.gmail.com   # user your provider
@@ -70,14 +70,14 @@ npm run dev
 ### Data Pipeline
 Manually update the music collection data:
 ```bash
-# Fetch latest collection from Discogs (includes tracklists)
+# 1. Fetch latest collection from Discogs (includes tracklists)
 npm run fetch-discogs
 
-# Match albums to Spotify for previews
-npm run enrich-spotify
+# 2. Enrich tracks with GetSongBPM data (BPM, key, danceability)
+npm run enrich-getsongbpm
 
-# Enrich tracks with Last.fm popularity metrics (optional)
-npm run enrich-lastfm
+# 3. Match albums to Spotify for previews
+npm run enrich-spotify
 ```
 
 ### Production Deployment (Vercel)
@@ -89,7 +89,7 @@ This project is optimized for deployment on [Vercel](https://vercel.com).
     *   `DISCOGS_TOKEN`
     *   `SPOTIFY_CLIENT_ID`
     *   `SPOTIFY_CLIENT_SECRET`
-    *   `LASTFM_API_KEY` (optional)
+    *   `GETSONGBPM_API_KEY` (optional)
     *   `SMTP_HOST`
     *   `SMTP_PORT`
     *   `SMTP_USER`
