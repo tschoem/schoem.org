@@ -278,6 +278,13 @@ async function searchGetSongBPM(artist, trackTitle) {
 }
 
 async function enrichWithGetSongBPM() {
+    // Check environment variable (default: true if not set)
+    const GETSONGBPM_SCAN = process.env.GETSONGBPM_SCAN !== 'false';
+    if (!GETSONGBPM_SCAN) {
+        console.log('⏭️  GetSongBPM enrichment skipped (GETSONGBPM_SCAN=false)\n');
+        return;
+    }
+
     // Parse command-line arguments
     const args = process.argv.slice(2);
     

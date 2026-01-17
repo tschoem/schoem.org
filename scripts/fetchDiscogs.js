@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import { fileURLToPath } from 'url';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,6 +62,13 @@ async function fetchReleaseDetails(releaseId) {
 }
 
 async function fetchCollection() {
+  // Check environment variable (default: true if not set)
+  const DISCOGS_SCAN = process.env.DISCOGS_SCAN !== 'false';
+  if (!DISCOGS_SCAN) {
+    console.log('⏭️  Discogs scan skipped (DISCOGS_SCAN=false)\n');
+    return;
+  }
+
   const mode = INCREMENTAL ? 'INCREMENTAL' : 'FULL';
   console.log(`🔄 Mode: ${mode}`);
   console.log(`Fetching Discogs collection for user: ${USERNAME}...\n`);

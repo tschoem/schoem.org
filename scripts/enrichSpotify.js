@@ -754,6 +754,13 @@ async function fetchTrackDurations(token, tracks) {
 
 // Main enrichment function
 async function enrichDiscogsData() {
+    // Check environment variable (default: true if not set)
+    const SPOTIFY_SCAN = process.env.SPOTIFY_SCAN !== 'false';
+    if (!SPOTIFY_SCAN) {
+        console.log('⏭️  Spotify enrichment skipped (SPOTIFY_SCAN=false)\n');
+        return;
+    }
+
     const INCREMENTAL = process.argv[2] !== '--full';
     const mode = INCREMENTAL ? 'INCREMENTAL' : 'FULL';
     console.log(`🎵 Starting Spotify URI enrichment... (Mode: ${mode})\n`);

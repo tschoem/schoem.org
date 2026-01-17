@@ -661,15 +661,11 @@ const MusicPage = () => {
           <MixCreator
             records={filteredRecords}
             onClose={() => setShowMixCreator(false)}
-            onMixCreated={(playlist) => {
-              // Don't close the mix creator immediately - let user see the preview
-              // The user can close it manually after viewing the playlist
-              console.log('Playlist created:', playlist);
-            }}
             onPlayTrack={(track) => {
               setCurrentTrack(track);
               setCurrentAlbum(null);
             }}
+            isPlayerVisible={!!(currentTrack || currentAlbum)}
           />
         )}
       </AnimatePresence>

@@ -155,6 +155,16 @@ app.post('/api/spotify-get-audio-features', async (req, res) => {
   return handler(req, res);
 });
 
+app.post('/api/share-mix', async (req, res) => {
+  const handler = (await import('./api/share-mix.js')).default;
+  return handler(req, res);
+});
+
+app.get('/api/confirm-mix', async (req, res) => {
+  const handler = (await import('./api/confirm-mix.js')).default;
+  return handler(req, res);
+});
+
 app.post('/api/send-email', async (req, res) => {
   const { name, email, message } = req.body;
 
