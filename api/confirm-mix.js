@@ -1,5 +1,5 @@
 /* eslint-env node */
-import { pendingPlaylists } from './share-mix.js';
+import { getMixData, deleteMixData } from './mix-storage.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -16,20 +16,12 @@ export default async function handler(req, res) {
   token = token.split(':')[0].replace(/[^a-f0-9]/gi, '');
   console.log('Confirm mix - received token:', token);
   console.log('Token length:', token.length);
-  console.log('Pending playlists size:', pendingPlaylists.size);
-  console.log('Pending playlists keys:', Array.from(pendingPlaylists.keys()));
 
-  // Get playlist data from pending store
-  const playlistData = pendingPlaylists.get(token);
+  // Get playlist data from storage (handles expiration check)
+  const playlistData = await getMixData(token);
 
   if (!playlistData) {
     return res.status(404).json({ error: 'Invalid or expired confirmation token' });
-  }
-
-  // Check if token has expired
-  if (Date.now() > playlistData.expiresAt) {
-    pendingPlaylists.delete(token);
-    return res.status(410).json({ error: 'Confirmation token has expired' });
   }
 
   // Get access token from server using refresh token
@@ -135,8 +127,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // Remove token from pending store (one-time use) - delete after successful creation
-    pendingPlaylists.delete(token);
+    // Remove token from storage (one-time use) - delete after successful creation
+    await deleteMixData(token);
 
     return res.status(200).json({
       success: true,

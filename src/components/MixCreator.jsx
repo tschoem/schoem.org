@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
@@ -368,8 +368,17 @@ const MixCreator = ({ records, onClose, onPlayTrack, isPlayerVisible = false }) 
         throw new Error('No valid track URIs found');
       }
 
-      const playlistName = customName ||
-        `Vinyl Mix - ${new Date().toLocaleDateString()}`;
+      // Generate default name with starting track if no custom name provided
+      let defaultName = `Vinyl Mix - ${new Date().toLocaleDateString()}`;
+      if (selectedSeedTrack?.title) {
+        // Append track name to make it more unique
+        const trackName = selectedSeedTrack.title.length > 40
+          ? selectedSeedTrack.title.substring(0, 40) + '...'
+          : selectedSeedTrack.title;
+        defaultName = `Vinyl Mix - ${trackName} - ${new Date().toLocaleDateString()}`;
+      }
+
+      const playlistName = customName || defaultName;
 
       const description = `DJ mix from my vinyl collection (${mixChain.length} tracks) - Mixed by Camelot key, BPM, danceability, and acousticness`;
 
@@ -615,7 +624,11 @@ const MixCreator = ({ records, onClose, onPlayTrack, isPlayerVisible = false }) 
                       type="text"
                       value={customName}
                       onChange={(e) => setCustomName(e.target.value)}
-                      placeholder={`Vinyl Mix - ${new Date().toLocaleDateString()}`}
+                      placeholder={
+                        selectedSeedTrack?.title
+                          ? `Vinyl Mix - ${selectedSeedTrack.title.length > 30 ? selectedSeedTrack.title.substring(0, 30) + '...' : selectedSeedTrack.title} - ${new Date().toLocaleDateString()}`
+                          : `Vinyl Mix - ${new Date().toLocaleDateString()}`
+                      }
                       className="playlist-name-input"
                     />
                   </div>

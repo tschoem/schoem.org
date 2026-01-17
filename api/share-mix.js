@@ -1,23 +1,7 @@
 /* eslint-env node */
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-
-// In-memory store for pending playlists (in production, use a database or Redis)
-// Key: tokenId, Value: { playlistData, expiresAt }
-const pendingPlaylists = new Map();
-
-// Clean up expired tokens every hour
-setInterval(() => {
-  const now = Date.now();
-  for (const [tokenId, data] of pendingPlaylists.entries()) {
-    if (data.expiresAt < now) {
-      pendingPlaylists.delete(tokenId);
-    }
-  }
-}, 3600000); // 1 hour
-
-// Export the pendingPlaylists map so the confirm endpoint can access it
-export { pendingPlaylists };
+import { storeMixData } from './mix-storage.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -39,19 +23,14 @@ export default async function handler(req, res) {
   try {
     // Generate a short, secure token ID
     const tokenId = crypto.randomBytes(16).toString('hex');
-    const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
 
-    // Store playlist data temporarily
-    pendingPlaylists.set(tokenId, {
+    // Store playlist data temporarily (with expiration handled by storage layer)
+    await storeMixData(tokenId, {
       playlistName,
       description,
       trackUris,
-      tracks: tracks || [],
-      expiresAt
+      tracks: tracks || []
     });
-    
-    console.log(`Stored playlist data for token: ${tokenId}`);
-    console.log(`Total pending playlists: ${pendingPlaylists.size}`);
 
     // Get base URL for confirmation link
     const baseUrl = process.env.VERCEL_URL 
