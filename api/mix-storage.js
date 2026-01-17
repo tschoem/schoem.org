@@ -1,33 +1,68 @@
 /* eslint-env node */
 // Storage abstraction for mix confirmation tokens
-// Uses Vercel KV in production, in-memory Map for local development
+// Uses Redis (Upstash or standard) in production, in-memory Map for local development
 
-let kv = null;
-let kvInitialized = false;
+let redis = null;
+let redisInitialized = false;
 const pendingPlaylists = new Map(); // Fallback for local development
 
-// Initialize Vercel KV if available
-async function ensureKV() {
-  if (kvInitialized) {
-    return kv !== null;
+// Initialize Redis if available
+async function ensureRedis() {
+  if (redisInitialized) {
+    return redis !== null;
   }
   
-  kvInitialized = true;
+  redisInitialized = true;
   
-  // Check if KV environment variables are set
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+  // Check for Upstash Redis (most common on Vercel)
+  const hasUpstash = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Check for standard Redis
+  const hasRedis = process.env.REDIS_URL;
+  
+  console.log('Redis Environment check:', {
+    hasUpstash,
+    hasRedis,
+    hasUpstashUrl: !!process.env.UPSTASH_REDIS_REST_URL,
+    hasUpstashToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+    hasRedisUrl: !!process.env.REDIS_URL,
+  });
+  
+  if (hasUpstash) {
     try {
-      // Dynamic import to avoid errors if package is not installed
-      const kvModule = await import('@vercel/kv');
-      kv = kvModule.kv;
-      console.log('✅ Using Vercel KV for persistent storage');
+      // Use Upstash Redis (HTTP-based, perfect for serverless)
+      const { Redis } = await import('@upstash/redis');
+      redis = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      });
+      console.log('✅ Using Upstash Redis for persistent storage');
       return true;
     } catch (error) {
-      console.log('⚠️ Vercel KV package not installed, using in-memory storage');
+      console.error('⚠️ Upstash Redis initialization failed:', error.message);
+      console.error('Error details:', error);
+      console.log('⚠️ Falling back to in-memory storage');
+      return false;
+    }
+  } else if (hasRedis) {
+    try {
+      // Use standard Redis client
+      const redisModule = await import('redis');
+      const client = redisModule.createClient({
+        url: process.env.REDIS_URL,
+      });
+      client.on('error', (err) => console.error('Redis Client Error:', err));
+      await client.connect();
+      redis = client;
+      console.log('✅ Using standard Redis for persistent storage');
+      return true;
+    } catch (error) {
+      console.error('⚠️ Redis initialization failed:', error.message);
+      console.error('Error details:', error);
+      console.log('⚠️ Falling back to in-memory storage');
       return false;
     }
   } else {
-    console.log('⚠️ Vercel KV not configured, using in-memory storage');
+    console.log('⚠️ Redis not configured, using in-memory storage');
     return false;
   }
 }
@@ -40,13 +75,31 @@ export async function storeMixData(tokenId, data) {
     expiresAt
   };
 
-  const useKV = await ensureKV();
+  const useRedis = await ensureRedis();
   
-  if (useKV && kv) {
-    // Store in Vercel KV with TTL
-    const ttl = 24 * 60 * 60; // 24 hours in seconds
-    await kv.set(`mix:${tokenId}`, JSON.stringify(dataWithExpiry), { ex: ttl });
-    console.log(`Stored mix data in KV for token: ${tokenId}`);
+  if (useRedis && redis) {
+    try {
+      // Store in Redis with TTL
+      const ttl = 24 * 60 * 60; // 24 hours in seconds
+      const key = `mix:${tokenId}`;
+      const value = JSON.stringify(dataWithExpiry);
+      
+      // Upstash uses set with ex option, standard Redis uses setEx or set with EX
+      if (process.env.UPSTASH_REDIS_REST_URL) {
+        // Upstash Redis
+        await redis.set(key, value, { ex: ttl });
+      } else {
+        // Standard Redis - use SET with EX option
+        await redis.set(key, value, { EX: ttl });
+      }
+      
+      console.log(`✅ Stored mix data in Redis for token: ${tokenId}`);
+    } catch (error) {
+      console.error('❌ Failed to store in Redis, falling back to memory:', error.message);
+      // Fallback to memory if Redis fails
+      pendingPlaylists.set(tokenId, dataWithExpiry);
+      console.log(`Stored mix data in memory for token: ${tokenId} (fallback)`);
+    }
   } else {
     // Store in memory
     pendingPlaylists.set(tokenId, dataWithExpiry);
@@ -55,27 +108,48 @@ export async function storeMixData(tokenId, data) {
 }
 
 export async function getMixData(tokenId) {
-  const useKV = await ensureKV();
+  const useRedis = await ensureRedis();
   
-  if (useKV && kv) {
-    // Get from Vercel KV
-    const data = await kv.get(`mix:${tokenId}`);
-    if (!data) {
-      return null;
+  if (useRedis && redis) {
+    try {
+      // Get from Redis
+      const key = `mix:${tokenId}`;
+      const data = await redis.get(key);
+      
+      console.log(`Redis get result for token ${tokenId}:`, data ? 'found' : 'not found');
+      
+      if (!data) {
+        return null;
+      }
+      
+      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+      
+      // Check expiration (Redis TTL should handle this, but double-check)
+      if (Date.now() > parsed.expiresAt) {
+        console.log(`Token ${tokenId} expired, deleting`);
+        await deleteMixData(tokenId);
+        return null;
+      }
+      
+      return parsed;
+    } catch (error) {
+      console.error('❌ Failed to get from Redis:', error.message);
+      // Fallback to memory
+      const data = pendingPlaylists.get(tokenId);
+      if (!data) {
+        return null;
+      }
+      if (Date.now() > data.expiresAt) {
+        pendingPlaylists.delete(tokenId);
+        return null;
+      }
+      return data;
     }
-    const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-    
-    // Check expiration (KV TTL should handle this, but double-check)
-    if (Date.now() > parsed.expiresAt) {
-      await deleteMixData(tokenId);
-      return null;
-    }
-    
-    return parsed;
   } else {
     // Get from memory
     const data = pendingPlaylists.get(tokenId);
     if (!data) {
+      console.log(`Token ${tokenId} not found in memory`);
       return null;
     }
     
@@ -90,12 +164,20 @@ export async function getMixData(tokenId) {
 }
 
 export async function deleteMixData(tokenId) {
-  const useKV = await ensureKV();
+  const useRedis = await ensureRedis();
   
-  if (useKV && kv) {
-    // Delete from Vercel KV
-    await kv.del(`mix:${tokenId}`);
-    console.log(`Deleted mix data from KV for token: ${tokenId}`);
+  if (useRedis && redis) {
+    try {
+      // Delete from Redis
+      const key = `mix:${tokenId}`;
+      await redis.del(key);
+      console.log(`Deleted mix data from Redis for token: ${tokenId}`);
+    } catch (error) {
+      console.error('❌ Failed to delete from Redis:', error.message);
+      // Fallback to memory
+      pendingPlaylists.delete(tokenId);
+      console.log(`Deleted mix data from memory for token: ${tokenId} (fallback)`);
+    }
   } else {
     // Delete from memory
     pendingPlaylists.delete(tokenId);
@@ -105,7 +187,7 @@ export async function deleteMixData(tokenId) {
 
 // Clean up expired tokens (only needed for in-memory storage)
 setInterval(() => {
-  if (!kv) {
+  if (!redis) {
     const now = Date.now();
     for (const [tokenId, data] of pendingPlaylists.entries()) {
       if (data.expiresAt < now) {

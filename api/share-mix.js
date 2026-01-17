@@ -23,6 +23,13 @@ export default async function handler(req, res) {
   try {
     // Generate a short, secure token ID
     const tokenId = crypto.randomBytes(16).toString('hex');
+    
+    console.log('Share mix - storing data for token:', tokenId);
+    console.log('Environment check:', {
+      hasUpstashUrl: !!process.env.UPSTASH_REDIS_REST_URL,
+      hasUpstashToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+      hasRedisUrl: !!process.env.REDIS_URL,
+    });
 
     // Store playlist data temporarily (with expiration handled by storage layer)
     await storeMixData(tokenId, {
@@ -31,6 +38,8 @@ export default async function handler(req, res) {
       trackUris,
       tracks: tracks || []
     });
+    
+    console.log('✅ Mix data stored successfully for token:', tokenId);
 
     // Get base URL for confirmation link
     const baseUrl = process.env.VERCEL_URL 

@@ -16,13 +16,23 @@ export default async function handler(req, res) {
   token = token.split(':')[0].replace(/[^a-f0-9]/gi, '');
   console.log('Confirm mix - received token:', token);
   console.log('Token length:', token.length);
+  console.log('Environment check:', {
+    hasUpstashUrl: !!process.env.UPSTASH_REDIS_REST_URL,
+    hasUpstashToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+    hasRedisUrl: !!process.env.REDIS_URL,
+  });
 
   // Get playlist data from storage (handles expiration check)
   const playlistData = await getMixData(token);
+  
+  console.log('Playlist data lookup result:', playlistData ? 'found' : 'not found');
 
   if (!playlistData) {
+    console.error('❌ Token not found or expired:', token);
     return res.status(404).json({ error: 'Invalid or expired confirmation token' });
   }
+  
+  console.log('✅ Token validated, playlist data retrieved');
 
   // Get access token from server using refresh token
   const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
