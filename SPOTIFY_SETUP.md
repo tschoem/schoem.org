@@ -1,7 +1,11 @@
 # Spotify Integration Setup
 
 ## Overview
-This guide explains how to enrich your vinyl collection with Spotify playback links.
+This guide explains how to enrich your vinyl collection with Spotify playback links and set up the Mix Creator feature.
+
+## Table of Contents
+1. [Basic Spotify Integration](#step-1-get-spotify-api-credentials) - Enrich albums with Spotify data
+2. [Creating Playlists and Mixes](#creating-playlists-and-mixes) - Set up the Mix Creator feature
 
 ## Prerequisites
 - Spotify account (free or premium)
@@ -259,7 +263,7 @@ The system uses these serverless functions (in `/api`):
 ### Redirect URI Mismatch
 - Ensure redirect URI in Spotify dashboard matches exactly
 - Check environment variable `SPOTIFY_REDIRECT_URI`
-- For local dev: `http://localhost:5173/api/spotify-callback`
+- For local dev: `http://127.0.0.1:3001/api/spotify-callback` (or port 5173 if using Vite only)
 - For production: `https://yourdomain.com/api/spotify-callback`
 
 ## Security Notes
@@ -269,11 +273,13 @@ The system uses these serverless functions (in `/api`):
 - Users must re-authenticate when tokens expire
 - Playlists are created as private by default
 
-## Future Enhancements
+## Mix Creator Features
 
-Potential improvements:
-- Refresh token support for longer sessions
-- Mix length/duration options
-- Track limit options
-- Mix preview before creation
-- Save mix templates
+The Mix Creator now includes:
+- ✅ **Intelligent track matching**: Uses Camelot key, BPM, danceability, and acousticness
+- ✅ **Email sharing**: Share mixes via email with confirmation links
+- ✅ **Spotify playlist creation**: Automatic playlist creation on confirmation
+- ✅ **Custom mix names**: Include starting track name in default playlist name
+- ✅ **Full track details**: Email includes complete track list with BPM, key, and duration
+
+For more details on the Mix Creator, see the Music page in the application.

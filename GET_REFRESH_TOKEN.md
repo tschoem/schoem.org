@@ -3,6 +3,13 @@
 ## Overview
 The refresh token allows your app to create playlists automatically without requiring user authentication each time. You only need to get it once.
 
+## Table of Contents
+1. [Method 1: Get Refresh Token from OAuth Flow](#method-1-get-refresh-token-from-oauth-flow-recommended) (Recommended)
+2. [Method 2: Get Refresh Token via Direct OAuth](#method-2-get-refresh-token-via-direct-oauth-alternative)
+3. [Method 3: Extract from Browser Console](#method-3-extract-from-browser-console-quick-method)
+4. [Verify Your Refresh Token Works](#verify-your-refresh-token-works)
+5. [Troubleshooting](#troubleshooting)
+
 ## Method 1: Get Refresh Token from OAuth Flow (Recommended)
 
 ### Step 1: Authenticate via Your App
@@ -96,11 +103,11 @@ If you've already authenticated:
 Test that your refresh token is working:
 
 ```bash
-# Test the token endpoint
-curl http://localhost:3000/api/spotify-get-token
+# Test the token endpoint (if using Express server on port 3001)
+curl http://localhost:3001/api/spotify-get-token
 ```
 
-Or visit: `http://localhost:3000/api/spotify-get-token` in your browser
+Or visit: `http://localhost:3001/api/spotify-get-token` in your browser (adjust port if needed)
 
 If configured correctly, you should get a JSON response with an `access_token`.
 

@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -21,9 +22,43 @@ console.log('SMTP_USER:', process.env.SMTP_USER ? 'Set' : 'MISSING');
 console.log('SMTP_PASS:', process.env.SMTP_PASS ? 'Set' : 'MISSING');
 console.log('-------------------------');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// CORS configuration - restrict to allowed origins
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3001', 'http://127.0.0.1:3001'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+// Request body size limit
+app.use(express.json({ limit: '10mb' }));
+
+// Rate limiting
+const emailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per window
+  message: 'Too many email requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per window
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -135,87 +170,40 @@ app.get('/api/spotify-callback', async (req, res) => {
 });
 
 // Spotify API routes (for local development)
-app.get('/api/spotify-get-token', async (req, res) => {
+app.get('/api/spotify-get-token', apiLimiter, async (req, res) => {
   const handler = (await import('./api/spotify-get-token.js')).default;
   return handler(req, res);
 });
 
-app.post('/api/spotify-create-playlist', async (req, res) => {
+app.post('/api/spotify-create-playlist', apiLimiter, async (req, res) => {
   const handler = (await import('./api/spotify-create-playlist.js')).default;
   return handler(req, res);
 });
 
-app.post('/api/spotify-get-tracks', async (req, res) => {
+app.post('/api/spotify-get-tracks', apiLimiter, async (req, res) => {
   const handler = (await import('./api/spotify-get-tracks.js')).default;
   return handler(req, res);
 });
 
-app.post('/api/spotify-get-audio-features', async (req, res) => {
+app.post('/api/spotify-get-audio-features', apiLimiter, async (req, res) => {
   const handler = (await import('./api/spotify-get-audio-features.js')).default;
   return handler(req, res);
 });
 
-app.post('/api/share-mix', async (req, res) => {
+app.post('/api/share-mix', emailLimiter, async (req, res) => {
   const handler = (await import('./api/share-mix.js')).default;
   return handler(req, res);
 });
 
-app.get('/api/confirm-mix', async (req, res) => {
+app.get('/api/confirm-mix', apiLimiter, async (req, res) => {
   const handler = (await import('./api/confirm-mix.js')).default;
   return handler(req, res);
 });
 
-app.post('/api/send-email', async (req, res) => {
-  const { name, email, message } = req.body;
-
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'Please fill in all fields.' });
-  }
-
-  try {
-    // Create Transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    // Email Options
-    const mailOptions = {
-      from: `"${name}" <${process.env.SMTP_USER}>`, // Sender address (must often be same as auth user)
-      to: 'tom@schoem.org', // Your email
-      replyTo: email, // Valid reply-to address
-      subject: `New Message from Portfolio Website: ${name}`,
-      text: `
-                Name: ${name}
-                Email: ${email}
-                
-                Message:
-                ${message}
-            `,
-      html: `
-                <h3>New Contact Form Submission</h3>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <br/>
-                <p><strong>Message:</strong></p>
-                <p>${message.replace(/\n/g, '<br>')}</p>
-            `,
-    };
-
-    // Send Email
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent from ${email}`);
-    res.status(200).json({ message: 'Email sent successfully!' });
-
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Failed to send email.' });
-  }
+app.post('/api/send-email', emailLimiter, async (req, res) => {
+  // Use the serverless function handler for consistency
+  const handler = (await import('./api/send-email.js')).default;
+  return handler(req, res);
 });
 
 // Catch all handler for React routing

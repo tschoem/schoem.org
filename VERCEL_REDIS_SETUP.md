@@ -2,6 +2,13 @@
 
 The mix confirmation flow requires persistent storage to work on Vercel. This guide explains how to set up Redis for this purpose.
 
+## Table of Contents
+1. [Why Redis?](#why-redis)
+2. [Setup Steps](#setup-steps)
+3. [How It Works](#how-it-works)
+4. [Testing](#testing)
+5. [Troubleshooting](#troubleshooting)
+
 ## Why Redis?
 
 On Vercel, serverless functions are stateless and don't share memory between invocations. The mix confirmation tokens need to be stored persistently so they can be retrieved when users click the confirmation link in their email.

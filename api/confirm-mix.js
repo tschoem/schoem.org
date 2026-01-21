@@ -1,9 +1,18 @@
 /* eslint-env node */
 import { getMixData, deleteMixData } from './mix-storage.js';
+import { validateOrigin, getAllowedOrigins } from './security-utils.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // CSRF protection: Validate origin (more lenient for GET requests from email links)
+  // Allow if no origin (email clients) or if from allowed origins
+  const origin = req.headers.origin || req.headers.referer;
+  if (origin && !validateOrigin(req, getAllowedOrigins())) {
+    // Log but don't block - email links may come from various origins
+    console.warn('Confirm mix request from unexpected origin:', origin);
   }
 
   let { token } = req.query;
@@ -14,6 +23,12 @@ export default async function handler(req, res) {
 
   // Clean the token - remove any unexpected suffixes (like :1 from React Router)
   token = token.split(':')[0].replace(/[^a-f0-9]/gi, '');
+  
+  // Validate token format (should be 32 hex characters)
+  if (token.length !== 32) {
+    return res.status(400).json({ error: 'Invalid token format' });
+  }
+  
   console.log('Confirm mix - received token:', token);
   console.log('Token length:', token.length);
   console.log('Environment check:', {

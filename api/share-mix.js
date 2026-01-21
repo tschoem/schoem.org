@@ -2,6 +2,9 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import { storeMixData } from './mix-storage.js';
+import DOMPurify from 'isomorphic-dompurify';
+import validator from 'validator';
+import { validateOrigin, getAllowedOrigins } from './security-utils.js';
 
 // Camelot Wheel mapping: musical key -> Camelot notation
 const keyToCamelot = {
@@ -76,17 +79,43 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  // CSRF protection: Validate origin
+  if (!validateOrigin(req, getAllowedOrigins())) {
+    return res.status(403).json({ error: 'Forbidden: Invalid origin' });
+  }
+
   const { email, playlistName, description, trackUris, tracks } = req.body;
 
   if (!email || !playlistName || !trackUris || !Array.isArray(trackUris)) {
     return res.status(400).json({ error: 'Missing required parameters' });
   }
 
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  // Validate and sanitize email
+  if (!validator.isEmail(email)) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
+  const sanitizedEmail = validator.normalizeEmail(email) || email;
+
+  // Validate input lengths
+  if (playlistName.length > 200) {
+    return res.status(400).json({ error: 'Playlist name too long (max 200 characters)' });
+  }
+  if (description && description.length > 1000) {
+    return res.status(400).json({ error: 'Description too long (max 1000 characters)' });
+  }
+  if (trackUris.length > 500) {
+    return res.status(400).json({ error: 'Too many tracks (max 500)' });
+  }
+
+  // Validate Spotify URI format
+  const spotifyUriRegex = /^spotify:track:[a-zA-Z0-9]{22}$/;
+  if (!trackUris.every(uri => typeof uri === 'string' && spotifyUriRegex.test(uri))) {
+    return res.status(400).json({ error: 'Invalid Spotify URI format' });
+  }
+
+  // Sanitize user inputs
+  const sanitizedPlaylistName = DOMPurify.sanitize(playlistName, { ALLOWED_TAGS: [] });
+  const sanitizedDescription = description ? DOMPurify.sanitize(description, { ALLOWED_TAGS: [] }) : '';
 
   try {
     // Generate a short, secure token ID
@@ -99,10 +128,15 @@ export default async function handler(req, res) {
       hasRedisUrl: !!process.env.REDIS_URL,
     });
 
+    // Validate tracks array size
+    if (tracks && tracks.length > 500) {
+      return res.status(400).json({ error: 'Too many tracks (max 500)' });
+    }
+
     // Store playlist data temporarily (with expiration handled by storage layer)
     await storeMixData(tokenId, {
-      playlistName,
-      description,
+      playlistName: sanitizedPlaylistName,
+      description: sanitizedDescription,
       trackUris,
       tracks: tracks || []
     });
@@ -116,11 +150,11 @@ export default async function handler(req, res) {
 
     const confirmationUrl = `${baseUrl}/mix-confirm/${tokenId}`;
 
-    // Format track list for email (show all tracks)
+    // Format track list for email (show all tracks) - sanitize all user inputs
     const trackListHtml = tracks && tracks.length > 0
       ? tracks.map((track, index) => {
-          const title = track.name || track.title || 'N/A';
-          const artist = track.artists || track.albumArtist || 'N/A';
+          const title = DOMPurify.sanitize((track.name || track.title || 'N/A').toString(), { ALLOWED_TAGS: [] });
+          const artist = DOMPurify.sanitize((track.artists || track.albumArtist || 'N/A').toString(), { ALLOWED_TAGS: [] });
           const bpm = track.getsongbpm?.bpm || 'N/A';
           const key = track.getsongbpm?.key || null;
           const camelotKey = getCamelotKey(key);
@@ -157,8 +191,8 @@ export default async function handler(req, res) {
 
     const mailOptions = {
       from: `"Mix Creator" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: `Your Vinyl Mix: ${playlistName}`,
+      to: sanitizedEmail,
+      subject: `Your Vinyl Mix: ${sanitizedPlaylistName}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -186,9 +220,9 @@ export default async function handler(req, res) {
               <p>Thank you for taking the time to create a mix from my vinyl collection! Your musical journey through the records is a gift to me, and I'm excited to discover which tracks you've chosen.</p>
               
               <div class="playlist-info">
-                <h2 style="margin-top: 0;">${playlistName}</h2>
+                <h2 style="margin-top: 0;">${sanitizedPlaylistName}</h2>
                 <p><strong>${tracks?.length || trackUris.length} tracks</strong> · <strong>${durationText}</strong></p>
-                ${description ? `<p style="color: #666; font-size: 14px;">${description}</p>` : ''}
+                ${sanitizedDescription ? `<p style="color: #666; font-size: 14px;">${sanitizedDescription}</p>` : ''}
               </div>
 
               ${trackListHtml ? `
@@ -237,9 +271,9 @@ Hi there,
 
 Thank you for taking the time to create a mix from my vinyl collection! Your musical journey through the records is a gift to me, and I'm excited to discover which tracks you've chosen.
 
-Playlist: ${playlistName}
+Playlist: ${sanitizedPlaylistName}
 ${tracks?.length || trackUris.length} tracks · ${durationText}
-${description ? `\n${description}\n` : ''}
+${sanitizedDescription ? `\n${sanitizedDescription}\n` : ''}
 
 ${tracks && tracks.length > 0 ? `
 Track List:
@@ -268,7 +302,7 @@ This email was sent from the Mix Creator on schoem.org
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`Share email sent to ${email} for playlist: ${playlistName}`);
+    console.log(`Share email sent to ${sanitizedEmail} for playlist: ${sanitizedPlaylistName}`);
 
     return res.status(200).json({ 
       success: true, 

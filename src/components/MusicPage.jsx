@@ -9,8 +9,8 @@ import MusicPlayer from './MusicPlayer';
 import '../styles/MusicPage.css';
 
 const MusicPage = () => {
-  // State for filtering
-  const [filter, setFilter] = useState(null); // { type: 'year' | 'added' | 'style' | 'genre', value: number | string }
+  // State for filtering - now supports arrays for multi-select
+  const [filter, setFilter] = useState(null); // { type: 'year' | 'added' | 'style' | 'genre', value: number | string | (number | string)[] }
   // State for sorting
   const [sortBy, setSortBy] = useState('added-desc'); // format: 'field-direction'
   // State for Spotify player modal (kept for backward compatibility, but not used)
@@ -40,15 +40,73 @@ const MusicPage = () => {
     return (filter?.type === filterType) ? discogsData : filteredRecords;
   };
 
+  // Helper: Check if a value is selected (handles both single values and arrays)
+  const isValueSelected = (filterType, value) => {
+    if (!filter || filter.type !== filterType) return false;
+    if (Array.isArray(filter.value)) {
+      return filter.value.includes(value);
+    }
+    return filter.value === value;
+  };
+
+  // Helper: Toggle value in filter (handles shift key for multi-select)
+  const toggleFilterValue = (filterType, value, shiftKey) => {
+    if (!filter || filter.type !== filterType) {
+      // New filter - single value
+      setFilter({ type: filterType, value });
+      return;
+    }
+
+    const currentValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+    const isSelected = currentValues.includes(value);
+
+    if (shiftKey) {
+      // Multi-select mode
+      if (isSelected) {
+        // Remove from selection
+        const newValues = currentValues.filter(v => v !== value);
+        if (newValues.length === 0) {
+          setFilter(null);
+        } else if (newValues.length === 1) {
+          setFilter({ type: filterType, value: newValues[0] });
+        } else {
+          setFilter({ type: filterType, value: newValues });
+        }
+      } else {
+        // Add to selection
+        setFilter({ type: filterType, value: [...currentValues, value] });
+      }
+    } else {
+      // Single-select mode
+      if (isSelected && currentValues.length === 1) {
+        // Deselect if it's the only selected item
+        setFilter(null);
+      } else {
+        // Replace with single selection
+        setFilter({ type: filterType, value });
+      }
+    }
+  };
+
   // --- Data Filtering Logic (Global) ---
   const filteredRecords = useMemo(() => {
     if (!filter) return discogsData;
 
     return discogsData.filter(item => {
-      if (filter.type === 'year') return item.year === filter.value;
-      if (filter.type === 'added') return new Date(item.added).getFullYear() === filter.value;
-      if (filter.type === 'style') return item.styles && item.styles.includes(filter.value);
-      if (filter.type === 'genre') return item.genres && item.genres.includes(filter.value);
+      const filterValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+
+      if (filter.type === 'year') {
+        return filterValues.includes(item.year);
+      }
+      if (filter.type === 'added') {
+        return filterValues.includes(new Date(item.added).getFullYear());
+      }
+      if (filter.type === 'style') {
+        return item.styles && filterValues.some(v => item.styles.includes(v));
+      }
+      if (filter.type === 'genre') {
+        return item.genres && filterValues.some(v => item.genres.includes(v));
+      }
       return true;
     });
   }, [filter]);
@@ -172,33 +230,42 @@ const MusicPage = () => {
   }, [filteredRecords, filter]);
 
 
-  // Handlers
-  const handleYearClick = (data) => {
-    if (data && data.activePayload) setFilter({ type: 'year', value: data.activePayload[0].payload.year });
+  // Handlers with shift key support
+  // For BarChart: onClick receives (data, index, e) where data is the chart data
+  const handleYearClick = (data, index, e) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const year = data.activePayload[0].payload.year;
+      toggleFilterValue('year', year, e?.shiftKey || false);
+    }
   };
 
-  const handleAcquisitionClick = (data) => {
-    if (data && data.activePayload) setFilter({ type: 'added', value: data.activePayload[0].payload.year });
+  const handleAcquisitionClick = (data, index, e) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const year = data.activePayload[0].payload.year;
+      toggleFilterValue('added', year, e?.shiftKey || false);
+    }
   };
 
-  const handleStyleClick = (node) => {
-    setFilter({ type: 'style', value: node.styleLabel });
+  // For ScatterChart: onClick receives (data, index, e) where data is the node
+  const handleStyleClick = (data, index, e) => {
+    if (data && data.styleLabel) {
+      // e might be undefined, so we need to check the actual event
+      // Recharts passes the event as the third parameter
+      const shiftKey = (e && e.shiftKey) || false;
+      toggleFilterValue('style', data.styleLabel, shiftKey);
+    }
   };
 
   // Improved Genre Tick with dynamic width
   const renderCustomGenreTick = ({ payload, x, y, textAnchor, stroke, radius }) => {
-    const isSelected = filter?.type === 'genre' && filter?.value === payload.value;
+    const isSelected = isValueSelected('genre', payload.value);
     const textLength = payload.value.length;
     const width = Math.max(70, textLength * 8 + 20); // Dynamic width approx
     const xOffset = textAnchor === 'end' ? -width + 10 : textAnchor === 'start' ? -10 : -width / 2;
 
     const handleClick = (e) => {
       e.stopPropagation();
-      if (isSelected) {
-        setFilter(null);
-      } else {
-        setFilter({ type: 'genre', value: payload.value });
-      }
+      toggleFilterValue('genre', payload.value, e.shiftKey);
     };
 
     return (
@@ -232,14 +299,10 @@ const MusicPage = () => {
   };
 
   // Radar Chart Dot Handler
-  const handleGenreDotClick = (data) => {
+  const handleGenreDotClick = (data, e) => {
     if (data && data.payload) {
       const clickedGenre = data.payload.subject;
-      if (filter?.type === 'genre' && filter?.value === clickedGenre) {
-        setFilter(null);
-      } else {
-        setFilter({ type: 'genre', value: clickedGenre });
-      }
+      toggleFilterValue('genre', clickedGenre, e?.shiftKey || false);
     }
   };
 
@@ -257,7 +320,7 @@ const MusicPage = () => {
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
           e.stopPropagation();
-          handleGenreDotClick({ payload });
+          handleGenreDotClick({ payload }, e);
         }}
       />
     );
@@ -285,16 +348,11 @@ const MusicPage = () => {
 
   // Generic Handler for Chart Clicks (Radar)
   // This catches clicks anywhere on the chart while a slice is active
-  const handleRadarClick = (data) => {
+  const handleRadarClick = (data, e) => {
     if (data && data.activePayload && data.activePayload.length > 0) {
       const payload = data.activePayload[0].payload;
-      // logic matches handleGenreDotClick
       const clickedGenre = payload.subject;
-      if (filter?.type === 'genre' && filter?.value === clickedGenre) {
-        setFilter(null);
-      } else {
-        setFilter({ type: 'genre', value: clickedGenre });
-      }
+      toggleFilterValue('genre', clickedGenre, e?.shiftKey || false);
     }
   };
 
@@ -394,7 +452,7 @@ const MusicPage = () => {
           <h3 className="chart-title">Genre Distribution</h3>
           <div className="chart-wrapper genre-chart-wrapper">
             <ResponsiveContainer width="100%" height={320}>
-              <RadarChart onClick={handleRadarClick} cx="50%" cy="50%" outerRadius="65%" data={genreData}>
+              <RadarChart onClick={(data, e) => handleRadarClick(data, e)} cx="50%" cy="50%" outerRadius="65%" data={genreData}>
                 <PolarGrid stroke="#444" />
                 <PolarAngleAxis
                   dataKey="subject"
@@ -408,6 +466,7 @@ const MusicPage = () => {
                   strokeWidth={3}
                   fill="#5d5dff"
                   fillOpacity={filter?.type === 'genre' ? 0.2 : 0.5}
+                  dot={(props) => renderGenreDot(props)}
                   isAnimationActive={true}
                   activeDot={{ r: 6, fill: '#fff', stroke: '#5d5dff', strokeWidth: 2, cursor: 'pointer' }}
                 />
@@ -443,7 +502,7 @@ const MusicPage = () => {
                   {styleData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={filter?.type === 'style' && filter?.value === entry.styleLabel ? '#fff' : 'rgba(0, 255, 157, 0.6)'}
+                      fill={isValueSelected('style', entry.styleLabel) ? '#fff' : 'rgba(0, 255, 157, 0.6)'}
                     />
                   ))}
                 </Scatter>
@@ -471,7 +530,7 @@ const MusicPage = () => {
                   {yearData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={filter?.type === 'year' && filter?.value === entry.year ? '#fff' : `hsl(${240 + (index * 2)}, 70%, 60%)`}
+                      fill={isValueSelected('year', entry.year) ? '#fff' : `hsl(${240 + (index * 2)}, 70%, 60%)`}
                       opacity={filter && filter.type !== 'year' ? 0.5 : 1}
                     />
                   ))}
@@ -500,9 +559,8 @@ const MusicPage = () => {
                   {acquisitionData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={filter?.type === 'added' && filter?.value === entry.year ? '#fff' : `hsl(${320 + (index * 5)}, 70%, 60%)`}
+                      fill={isValueSelected('added', entry.year) ? '#fff' : `hsl(${320 + (index * 5)}, 70%, 60%)`}
                       opacity={filter && filter.type !== 'added' ? 0.5 : 1}
-                      cursor="pointer"
                     />
                   ))}
                 </Bar>
