@@ -1,7 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ScatterChart, Scatter, ZAxis, CartesianGrid } from 'recharts';
 import discogsData from '../data/discogsData.json';
+import MixCreator from './MixCreator';
+import VinylLabelGenerator from './VinylLabelGenerator.jsx';
+import MusicPlayer from './MusicPlayer';
 
 import '../styles/MusicPage.css';
 

@@ -9,10 +9,11 @@ import LeadershipPage from './components/LeadershipPage';
 
 import ContactPage from './components/ContactPage';
 import MusicPage from './components/MusicPage';
+import MixConfirm from './components/MixConfirm';
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
       <div className="app-container">
         <Navbar />
@@ -23,6 +24,7 @@ function App() {
           <Route path="/cv" element={<CVPage />} />
           <Route path="/leadership" element={<LeadershipPage />} />
           <Route path="/music" element={<MusicPage />} />
+          <Route path="/mix-confirm/:token" element={<MixConfirm />} />
           <Route path="/contact" element={<ContactPage />} />
         </Routes>
       </div>
