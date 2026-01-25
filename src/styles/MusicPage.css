@@ -61,6 +61,11 @@
     color: white;
 }
 
+.discogs-btn[style*="rgba(93, 93, 255"]:hover {
+    border-color: rgba(93, 93, 255, 1);
+    background: rgba(93, 93, 255, 0.2);
+}
+
 /* Charts Area */
 .music-charts-container {
     display: grid;
