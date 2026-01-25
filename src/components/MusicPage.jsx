@@ -539,18 +539,23 @@ const MusicPage = () => {
                 <div className="record-overlay">
                   <span className="record-year">{item.year}</span>
                 </div>
-                {item.spotify_id && (
-                  <button
-                    className="spotify-play-btn"
-                    onClick={() => setSelectedAlbum(item)}
-                    aria-label="Play on Spotify"
-                    title="Play on Spotify"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </button>
-                )}
+                <div className="record-actions">
+                  {item.spotify_id && (
+                    <button
+                      className="spotify-play-btn"
+                      onClick={() => setSelectedAlbum(item)}
+                      aria-label="Play on Spotify"
+                      title="Play on Spotify"
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </button>
+                  )}
+                  {item.tracklist && item.tracklist.length > 0 && (
+                    <VinylLabelGenerator record={item} />
+                  )}
+                </div>
               </div>
               <div className="record-info">
                 <h4 className="record-title">{item.title}</h4>
