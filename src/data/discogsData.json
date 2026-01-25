@@ -1,5 +1,45 @@
 [
   {
+    "id": 16714599,
+    "instance_id": 2104796659,
+    "title": "P'ti Sega EP",
+    "artists": "Souleance",
+    "year": 2020,
+    "genres": [
+      "Funk / Soul"
+    ],
+    "styles": [],
+    "cover_image": "https://i.discogs.com/eDFap7n0k1KefSzvbMwLlYyZz0_fHVQF3iRg3OfyYf4/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2NzE0/NTk5LTE2MDk0MTA0/ODMtNjE3Mi5qcGVn.jpeg",
+    "labels": "Pura Vida Sounds, Heavenly Sweetness",
+    "added": "2026-01-20T23:41:04-08:00",
+    "spotify_id": "0XXTWkI7UKCkdF2r5m7AEJ",
+    "spotify_uri": "spotify:album:0XXTWkI7UKCkdF2r5m7AEJ",
+    "spotify_url": "https://open.spotify.com/album/0XXTWkI7UKCkdF2r5m7AEJ",
+    "spotify_image": "https://i.scdn.co/image/ab67616d0000b273b67fedd833084fee864dbaa6",
+    "spotify_popularity": 23,
+    "tracklist": [
+      {
+        "position": "A",
+        "title": "Sulette",
+        "duration": "4:53",
+        "type_": "track",
+        "artist": null,
+        "spotify_id": "67quJyR3C7bjv3RPfNRwRA",
+        "spotify_uri": "spotify:track:67quJyR3C7bjv3RPfNRwRA"
+      },
+      {
+        "position": "B",
+        "title": "Disco Séga",
+        "duration": "4:09",
+        "type_": "track",
+        "artist": null,
+        "spotify_id": "4NbUPMG6cp0jJtoOPpjLgM",
+        "spotify_uri": "spotify:track:4NbUPMG6cp0jJtoOPpjLgM"
+      }
+    ],
+    "tracklist_count": 2
+  },
+  {
     "id": 12253923,
     "instance_id": 2093101922,
     "title": "Caravelle",
@@ -16078,10 +16118,10 @@
     "cover_image": "https://i.discogs.com/V_1G6KzaoZ0XgRsjgs14JZStsRnrSWjb1ASgnOm_CxE/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTcxNjI5/ODMtMTQ0MjE3NzQ3/MS04MjM2LmpwZWc.jpeg",
     "labels": "Eurodisc",
     "added": "2018-02-23T08:37:59-08:00",
-    "spotify_id": "0ep1PFW4YGd0cRNW5EZ0dO",
-    "spotify_uri": "spotify:album:0ep1PFW4YGd0cRNW5EZ0dO",
-    "spotify_url": "https://open.spotify.com/album/0ep1PFW4YGd0cRNW5EZ0dO",
-    "spotify_image": "https://i.scdn.co/image/ab67616d0000b273542492297ea81e329372d5b9",
+    "spotify_id": "1mCVfZDm8CktRnp9r9CzmB",
+    "spotify_uri": "spotify:album:1mCVfZDm8CktRnp9r9CzmB",
+    "spotify_url": "https://open.spotify.com/album/1mCVfZDm8CktRnp9r9CzmB",
+    "spotify_image": "https://i.scdn.co/image/ab67616d0000b273e3b45ceb11563ff8b9f59690",
     "spotify_popularity": 0,
     "tracklist": [
       {

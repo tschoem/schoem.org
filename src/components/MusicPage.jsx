@@ -308,10 +308,12 @@ const MusicPage = () => {
 
   // Custom Dot for Radar Chart (Invisible but clickable)
   const renderGenreDot = (props) => {
-    const { cx, cy, payload } = props;
+    const { cx, cy, payload, index } = props;
+    // Ensure unique key even if payload.subject is undefined
+    const uniqueKey = payload?.subject ? `dot-${payload.subject}` : `dot-${index}-${cx}-${cy}`;
     return (
       <circle
-        key={`dot-${payload.subject}`}
+        key={uniqueKey}
         cx={cx}
         cy={cy}
         r={10} // Larger hit area
@@ -320,7 +322,9 @@ const MusicPage = () => {
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
           e.stopPropagation();
-          handleGenreDotClick({ payload }, e);
+          if (payload?.subject) {
+            handleGenreDotClick({ payload }, e);
+          }
         }}
       />
     );

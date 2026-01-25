@@ -396,8 +396,21 @@ const MixCreator = ({ records, onClose, onPlayTrack, isPlayerVisible = false }) 
       });
 
       if (!shareResponse.ok) {
-        const errorData = await shareResponse.json();
-        throw new Error(errorData.error || 'Failed to send email');
+        let errorMessage = 'Failed to send email';
+        try {
+          const errorData = await shareResponse.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch (parseError) {
+          // If response is not JSON, try to get text
+          try {
+            const errorText = await shareResponse.text();
+            errorMessage = errorText || errorMessage;
+          } catch (textError) {
+            // If we can't read the response, use status-based message
+            errorMessage = `Server error (${shareResponse.status})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       setEmailSent(true);

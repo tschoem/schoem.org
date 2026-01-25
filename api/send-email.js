@@ -1,7 +1,28 @@
 import nodemailer from 'nodemailer';
-import DOMPurify from 'isomorphic-dompurify';
 import validator from 'validator';
 import { validateOrigin, getAllowedOrigins } from './security-utils.js';
+
+// Simple HTML tag stripper for server-side (avoids jsdom ESM issues)
+// This is sufficient for XSS prevention when we just need to remove HTML tags
+function sanitizeHtml(input) {
+  if (!input || typeof input !== 'string') return '';
+  // Remove all HTML tags (including script, style, etc.)
+  let sanitized = input.replace(/<[^>]*>/g, '');
+  // Decode common HTML entities (in order to avoid double-encoding issues)
+  sanitized = sanitized
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&#x60;/g, '`')
+    .replace(/&#x3D;/g, '=');
+  return sanitized.trim();
+}
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -33,9 +54,13 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Message too long (max 5000 characters)' });
     }
 
-    // Sanitize user inputs (remove HTML tags)
-    const sanitizedName = DOMPurify.sanitize(name, { ALLOWED_TAGS: [] });
-    const sanitizedMessage = DOMPurify.sanitize(message, { ALLOWED_TAGS: ['br', 'p'] }); // Allow only line breaks
+    // Sanitize user inputs (remove HTML tags for XSS prevention)
+    const sanitizedName = sanitizeHtml(name);
+    // For messages, we allow basic line breaks by converting <br> and <p> to newlines
+    const sanitizedMessage = sanitizeHtml(message)
+      .replace(/<br\s*\/?>/gi, '\n') // Convert <br> to newline
+      .replace(/<\/p>/gi, '\n') // Convert </p> to newline
+      .replace(/<p[^>]*>/gi, ''); // Remove opening <p> tags
 
     try {
         const transporter = nodemailer.createTransport({

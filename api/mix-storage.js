@@ -14,18 +14,28 @@ async function ensureRedis() {
   
   redisInitialized = true;
   
+  // For local development, prefer in-memory storage unless explicitly configured
+  const isLocalDev = process.env.NODE_ENV !== 'production' && !process.env.VERCEL;
+  
   // Check for Upstash Redis (most common on Vercel)
   const hasUpstash = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
   // Check for standard Redis
   const hasRedis = process.env.REDIS_URL;
   
   console.log('Redis Environment check:', {
+    isLocalDev,
     hasUpstash,
     hasRedis,
     hasUpstashUrl: !!process.env.UPSTASH_REDIS_REST_URL,
     hasUpstashToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
     hasRedisUrl: !!process.env.REDIS_URL,
   });
+  
+  // In local development, skip Redis unless explicitly configured
+  if (isLocalDev && !hasUpstash && !hasRedis) {
+    console.log('✅ Local development mode: using in-memory storage (no Redis needed)');
+    return false;
+  }
   
   if (hasUpstash) {
     try {
@@ -41,6 +51,7 @@ async function ensureRedis() {
       console.error('⚠️ Upstash Redis initialization failed:', error.message);
       console.error('Error details:', error);
       console.log('⚠️ Falling back to in-memory storage');
+      redis = null; // Ensure redis is null on failure
       return false;
     }
   } else if (hasRedis) {
@@ -50,7 +61,11 @@ async function ensureRedis() {
       const client = redisModule.createClient({
         url: process.env.REDIS_URL,
       });
-      client.on('error', (err) => console.error('Redis Client Error:', err));
+      client.on('error', (err) => {
+        console.error('Redis Client Error:', err);
+        // On error, reset redis to null so we fall back to memory
+        redis = null;
+      });
       await client.connect();
       redis = client;
       console.log('✅ Using standard Redis for persistent storage');
@@ -59,10 +74,11 @@ async function ensureRedis() {
       console.error('⚠️ Redis initialization failed:', error.message);
       console.error('Error details:', error);
       console.log('⚠️ Falling back to in-memory storage');
+      redis = null; // Ensure redis is null on failure
       return false;
     }
   } else {
-    console.log('⚠️ Redis not configured, using in-memory storage');
+    console.log('✅ Redis not configured, using in-memory storage');
     return false;
   }
 }
@@ -75,6 +91,10 @@ export async function storeMixData(tokenId, data) {
     expiresAt
   };
 
+  // Always store in memory first (for reliability)
+  pendingPlaylists.set(tokenId, dataWithExpiry);
+  
+  // Try Redis if available, but don't fail if it doesn't work
   const useRedis = await ensureRedis();
   
   if (useRedis && redis) {
@@ -95,19 +115,16 @@ export async function storeMixData(tokenId, data) {
       
       console.log(`✅ Stored mix data in Redis for token: ${tokenId}`);
     } catch (error) {
-      console.error('❌ Failed to store in Redis, falling back to memory:', error.message);
-      // Fallback to memory if Redis fails
-      pendingPlaylists.set(tokenId, dataWithExpiry);
-      console.log(`Stored mix data in memory for token: ${tokenId} (fallback)`);
+      console.error('❌ Failed to store in Redis, using memory only:', error.message);
+      // Data is already in memory, so we're good
     }
   } else {
-    // Store in memory
-    pendingPlaylists.set(tokenId, dataWithExpiry);
-    console.log(`Stored mix data in memory for token: ${tokenId}`);
+    console.log(`✅ Stored mix data in memory for token: ${tokenId} (local development)`);
   }
 }
 
 export async function getMixData(tokenId) {
+  // Try Redis first if available
   const useRedis = await ensureRedis();
   
   if (useRedis && redis) {
@@ -118,52 +135,45 @@ export async function getMixData(tokenId) {
       
       console.log(`Redis get result for token ${tokenId}:`, data ? 'found' : 'not found');
       
-      if (!data) {
-        return null;
+      if (data) {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        
+        // Check expiration (Redis TTL should handle this, but double-check)
+        if (Date.now() > parsed.expiresAt) {
+          console.log(`Token ${tokenId} expired, deleting`);
+          await deleteMixData(tokenId);
+          return null;
+        }
+        
+        return parsed;
       }
-      
-      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-      
-      // Check expiration (Redis TTL should handle this, but double-check)
-      if (Date.now() > parsed.expiresAt) {
-        console.log(`Token ${tokenId} expired, deleting`);
-        await deleteMixData(tokenId);
-        return null;
-      }
-      
-      return parsed;
     } catch (error) {
-      console.error('❌ Failed to get from Redis:', error.message);
-      // Fallback to memory
-      const data = pendingPlaylists.get(tokenId);
-      if (!data) {
-        return null;
-      }
-      if (Date.now() > data.expiresAt) {
-        pendingPlaylists.delete(tokenId);
-        return null;
-      }
-      return data;
+      console.error('❌ Failed to get from Redis, checking memory:', error.message);
+      // Fall through to memory check
     }
-  } else {
-    // Get from memory
-    const data = pendingPlaylists.get(tokenId);
-    if (!data) {
-      console.log(`Token ${tokenId} not found in memory`);
-      return null;
-    }
-    
-    // Check expiration
-    if (Date.now() > data.expiresAt) {
-      pendingPlaylists.delete(tokenId);
-      return null;
-    }
-    
-    return data;
   }
+  
+  // Get from memory (primary for local dev, fallback for production)
+  const data = pendingPlaylists.get(tokenId);
+  if (!data) {
+    console.log(`Token ${tokenId} not found in memory`);
+    return null;
+  }
+  
+  // Check expiration
+  if (Date.now() > data.expiresAt) {
+    pendingPlaylists.delete(tokenId);
+    return null;
+  }
+  
+  return data;
 }
 
 export async function deleteMixData(tokenId) {
+  // Always delete from memory
+  const deletedFromMemory = pendingPlaylists.delete(tokenId);
+  
+  // Try Redis if available
   const useRedis = await ensureRedis();
   
   if (useRedis && redis) {
@@ -173,15 +183,12 @@ export async function deleteMixData(tokenId) {
       await redis.del(key);
       console.log(`Deleted mix data from Redis for token: ${tokenId}`);
     } catch (error) {
-      console.error('❌ Failed to delete from Redis:', error.message);
-      // Fallback to memory
-      pendingPlaylists.delete(tokenId);
-      console.log(`Deleted mix data from memory for token: ${tokenId} (fallback)`);
+      console.error('❌ Failed to delete from Redis (already deleted from memory):', error.message);
     }
-  } else {
-    // Delete from memory
-    pendingPlaylists.delete(tokenId);
-    console.log(`Deleted mix data from memory for token: ${tokenId}`);
+  }
+  
+  if (deletedFromMemory) {
+    console.log(`✅ Deleted mix data from memory for token: ${tokenId}`);
   }
 }
 

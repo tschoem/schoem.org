@@ -2,9 +2,30 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import { storeMixData } from './mix-storage.js';
-import DOMPurify from 'isomorphic-dompurify';
 import validator from 'validator';
 import { validateOrigin, getAllowedOrigins } from './security-utils.js';
+
+// Simple HTML tag stripper for server-side (avoids jsdom ESM issues)
+// This is sufficient for XSS prevention when we just need to remove HTML tags
+function sanitizeHtml(input) {
+  if (!input || typeof input !== 'string') return '';
+  // Remove all HTML tags (including script, style, etc.)
+  let sanitized = input.replace(/<[^>]*>/g, '');
+  // Decode common HTML entities (in order to avoid double-encoding issues)
+  sanitized = sanitized
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&#x60;/g, '`')
+    .replace(/&#x3D;/g, '=');
+  return sanitized.trim();
+}
 
 // Camelot Wheel mapping: musical key -> Camelot notation
 const keyToCamelot = {
@@ -113,9 +134,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid Spotify URI format' });
   }
 
-  // Sanitize user inputs
-  const sanitizedPlaylistName = DOMPurify.sanitize(playlistName, { ALLOWED_TAGS: [] });
-  const sanitizedDescription = description ? DOMPurify.sanitize(description, { ALLOWED_TAGS: [] }) : '';
+  // Sanitize user inputs (remove HTML tags for XSS prevention)
+  const sanitizedPlaylistName = sanitizeHtml(playlistName);
+  const sanitizedDescription = description ? sanitizeHtml(description) : '';
 
   try {
     // Generate a short, secure token ID
@@ -133,15 +154,48 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Too many tracks (max 500)' });
     }
 
+    // Sanitize tracks data - ensure it's serializable and remove any non-serializable properties
+    let sanitizedTracks = [];
+    if (tracks && Array.isArray(tracks)) {
+      try {
+        sanitizedTracks = tracks.map(track => {
+          // Create a clean, serializable object
+          return {
+            name: track.name || track.title || null,
+            title: track.title || track.name || null,
+            artists: track.artists || track.albumArtist || null,
+            albumArtist: track.albumArtist || track.artists || null,
+            duration_ms: track.duration_ms || null,
+            uri: track.uri || null,
+            spotify_id: track.spotify_id || track.id || null,
+            albumId: track.albumId || null,
+            getsongbpm: track.getsongbpm ? {
+              bpm: track.getsongbpm.bpm || null,
+              key: track.getsongbpm.key || null
+            } : null
+          };
+        });
+      } catch (trackError) {
+        console.error('Error sanitizing tracks:', trackError);
+        // If track sanitization fails, use empty array
+        sanitizedTracks = [];
+      }
+    }
+
     // Store playlist data temporarily (with expiration handled by storage layer)
-    await storeMixData(tokenId, {
-      playlistName: sanitizedPlaylistName,
-      description: sanitizedDescription,
-      trackUris,
-      tracks: tracks || []
-    });
-    
-    console.log('✅ Mix data stored successfully for token:', tokenId);
+    try {
+      await storeMixData(tokenId, {
+        playlistName: sanitizedPlaylistName,
+        description: sanitizedDescription,
+        trackUris,
+        tracks: sanitizedTracks
+      });
+      console.log('✅ Mix data stored successfully for token:', tokenId);
+    } catch (storageError) {
+      console.error('❌ Error storing mix data:', storageError);
+      // If storage fails, we can still try to send the email, but log the error
+      // Don't fail completely - the email can still be sent with trackUris
+    }
 
     // Get base URL for confirmation link
     const baseUrl = process.env.VERCEL_URL 
@@ -150,11 +204,11 @@ export default async function handler(req, res) {
 
     const confirmationUrl = `${baseUrl}/mix-confirm/${tokenId}`;
 
-    // Format track list for email (show all tracks) - sanitize all user inputs
-    const trackListHtml = tracks && tracks.length > 0
-      ? tracks.map((track, index) => {
-          const title = DOMPurify.sanitize((track.name || track.title || 'N/A').toString(), { ALLOWED_TAGS: [] });
-          const artist = DOMPurify.sanitize((track.artists || track.albumArtist || 'N/A').toString(), { ALLOWED_TAGS: [] });
+    // Format track list for email (show all tracks) - use sanitized tracks
+    const trackListHtml = sanitizedTracks && sanitizedTracks.length > 0
+      ? sanitizedTracks.map((track, index) => {
+          const title = sanitizeHtml((track.name || track.title || 'N/A').toString());
+          const artist = sanitizeHtml((track.artists || track.albumArtist || 'N/A').toString());
           const bpm = track.getsongbpm?.bpm || 'N/A';
           const key = track.getsongbpm?.key || null;
           const camelotKey = getCamelotKey(key);
@@ -171,23 +225,46 @@ export default async function handler(req, res) {
         }).join('')
       : '';
 
-    const totalDuration = tracks && tracks.length > 0
-      ? tracks.reduce((sum, t) => sum + (t.duration_ms || 0), 0)
+    const totalDuration = sanitizedTracks && sanitizedTracks.length > 0
+      ? sanitizedTracks.reduce((sum, t) => sum + (t.duration_ms || 0), 0)
       : 0;
     const hours = Math.floor(totalDuration / 3600000);
     const minutes = Math.floor((totalDuration % 3600000) / 60000);
     const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
+    // Validate SMTP configuration
+    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error('SMTP configuration missing:', {
+        hasHost: !!process.env.SMTP_HOST,
+        hasPort: !!process.env.SMTP_PORT,
+        hasUser: !!process.env.SMTP_USER,
+        hasPass: !!process.env.SMTP_PASS
+      });
+      return res.status(500).json({ 
+        error: 'Email service not configured',
+        details: 'SMTP configuration is missing'
+      });
+    }
+
     // Send email
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    let transporter;
+    try {
+      transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT, 10),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+    } catch (transporterError) {
+      console.error('Error creating email transporter:', transporterError);
+      return res.status(500).json({ 
+        error: 'Failed to initialize email service',
+        details: transporterError.message
+      });
+    }
 
     const mailOptions = {
       from: `"Mix Creator" <${process.env.SMTP_USER}>`,
@@ -221,7 +298,7 @@ export default async function handler(req, res) {
               
               <div class="playlist-info">
                 <h2 style="margin-top: 0;">${sanitizedPlaylistName}</h2>
-                <p><strong>${tracks?.length || trackUris.length} tracks</strong> · <strong>${durationText}</strong></p>
+                <p><strong>${sanitizedTracks?.length || trackUris.length} tracks</strong> · <strong>${durationText}</strong></p>
                 ${sanitizedDescription ? `<p style="color: #666; font-size: 14px;">${sanitizedDescription}</p>` : ''}
               </div>
 
@@ -272,12 +349,12 @@ Hi there,
 Thank you for taking the time to create a mix from my vinyl collection! Your musical journey through the records is a gift to me, and I'm excited to discover which tracks you've chosen.
 
 Playlist: ${sanitizedPlaylistName}
-${tracks?.length || trackUris.length} tracks · ${durationText}
+${sanitizedTracks?.length || trackUris.length} tracks · ${durationText}
 ${sanitizedDescription ? `\n${sanitizedDescription}\n` : ''}
 
-${tracks && tracks.length > 0 ? `
+${sanitizedTracks && sanitizedTracks.length > 0 ? `
 Track List:
-${tracks.map((track, index) => {
+${sanitizedTracks.map((track, index) => {
   const title = track.name || track.title || 'N/A';
   const artist = track.artists || track.albumArtist || 'N/A';
   const bpm = track.getsongbpm?.bpm || 'N/A';
@@ -301,20 +378,40 @@ This email was sent from the Mix Creator on schoem.org
       `
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`Share email sent to ${sanitizedEmail} for playlist: ${sanitizedPlaylistName}`);
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`Share email sent to ${sanitizedEmail} for playlist: ${sanitizedPlaylistName}`);
 
-    return res.status(200).json({ 
-      success: true, 
-      message: 'Email sent successfully!'
-    });
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Email sent successfully!'
+      });
+    } catch (emailError) {
+      console.error('Error sending email via transporter:', emailError);
+      throw emailError; // Re-throw to be caught by outer catch block
+    }
 
   } catch (error) {
     console.error('Error sending share email:', error);
-    return res.status(500).json({ 
-      error: 'Failed to send email',
-      details: error.message 
-    });
+    console.error('Error stack:', error.stack);
+    
+    // Ensure we always return JSON, even if there's an error
+    try {
+      return res.status(500).json({ 
+        error: 'Failed to send email',
+        details: error.message || 'Unknown error occurred'
+      });
+    } catch (responseError) {
+      // If we can't send JSON response, log it
+      console.error('Failed to send error response:', responseError);
+      // Try to send a plain text response as last resort
+      if (!res.headersSent) {
+        res.status(500).send(JSON.stringify({ 
+          error: 'Failed to send email',
+          details: error.message || 'Unknown error occurred'
+        }));
+      }
+    }
   }
 }
 

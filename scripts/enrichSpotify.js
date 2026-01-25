@@ -66,9 +66,11 @@ function cleanSearchString(str) {
     if (!str) return '';
     // First remove parentheticals
     const withoutParentheticals = removeParentheticals(str);
+    // Remove format suffixes (EP, Single, etc.) for better search matching
+    const withoutFormats = removeFormatSuffixes(withoutParentheticals);
     // Keep accented characters, only remove non-letter/non-space punctuation
     // This preserves é, ñ, ü, etc. which Spotify supports
-    return withoutParentheticals
+    return withoutFormats
         .replace(/[^\p{L}\p{N}\s-]/gu, ' ') // Remove special chars but keep Unicode letters/numbers
         .replace(/\s+/g, ' ') // Normalize whitespace
         .trim();
@@ -89,12 +91,25 @@ function normalizeVolumeNumbers(str) {
         .trim();
 }
 
+// Remove format suffixes (EP, Single, LP, etc.) for better matching
+// These are metadata, not part of the actual album title
+function removeFormatSuffixes(str) {
+    if (!str) return '';
+    return str
+        // Remove format indicators at the end (case-insensitive, with optional punctuation)
+        .replace(/\s+(ep|single|lp|maxi|mini|album|mixtape|compilation|comp)\b\.?$/gi, '')
+        // Also remove if they appear before a parenthetical (e.g., "Title EP (Remastered)")
+        .replace(/\s+(ep|single|lp|maxi|mini|album|mixtape|compilation|comp)\b\.?\s*(?=\()/gi, '')
+        .trim();
+}
+
 // Normalize string for comparison (remove accents for fuzzy matching)
 function normalizeForComparison(str) {
     if (!str) return '';
     const normalized = normalizeAccents(str.toLowerCase());
     const volumeNormalized = normalizeVolumeNumbers(normalized);
-    return volumeNormalized
+    const formatNormalized = removeFormatSuffixes(volumeNormalized);
+    return formatNormalized
         .replace(/\s+/g, ' ')
         .trim();
 }
