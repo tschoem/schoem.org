@@ -15,6 +15,23 @@ const MusicPage = () => {
   const [sortBy, setSortBy] = useState('added-desc'); // format: 'field-direction'
   // State for Spotify player modal
   const [selectedAlbum, setSelectedAlbum] = useState(null); // Album to play in modal
+  // State for mix creator
+  const [showMixCreator, setShowMixCreator] = useState(false);
+  // State for bottom-docked music player
+  const [currentTrack, setCurrentTrack] = useState(null); // Track to play
+  const [currentAlbum, setCurrentAlbum] = useState(null); // Album to play
+
+  // Auto-open MixCreator after successful Spotify authentication
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const spotifyAuth = urlParams.get('spotify_auth');
+
+    if (spotifyAuth === 'success') {
+      // Open the mix creator modal
+      // Don't clean URL yet - let MixCreator handle the token first
+      setShowMixCreator(true);
+    }
+  }, []);
 
   // Helper: Determine which dataset to use for a chart
   // If the chart controls the current filter, show ALL data (to let user switch).
@@ -322,31 +339,41 @@ const MusicPage = () => {
               </button>
             )}
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
-            <a
-              href="https://www.discogs.com/user/tomschoem/collection"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="discogs-btn"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              View on Discogs
-            </a>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  setShowMixCreator(true);
+                }}
+                className="discogs-btn"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18V5l12-2v13"></path>
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                Create Mix
+              </button>
+              <a
+                href="https://www.discogs.com/user/tomschoem/collection"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="discogs-btn"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                View on Discogs
+              </a>
+            </div>
             <a
               href="https://getsongbpm.com/"
               target="_blank"
               rel="noopener"
-              className="discogs-btn"
-              style={{ background: 'rgba(93, 93, 255, 0.1)', borderColor: 'rgba(93, 93, 255, 0.5)' }}
+              className="getsongbpm-attribution"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 6v12M8 10h8M8 14h8"></path>
-              </svg>
-              GetSongBPM
+              Powered by getsongbpm
             </a>
           </div>
         </motion.div>
@@ -577,6 +604,7 @@ const MusicPage = () => {
       </section>
 
       {/* Spotify Player Modal */}
+      {/* Spotify Player Modal */}
       <AnimatePresence>
         {selectedAlbum && (
           <motion.div
@@ -619,6 +647,35 @@ const MusicPage = () => {
               </p>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mix Creator Modal */}
+      <AnimatePresence>
+        {showMixCreator && (
+          <MixCreator
+            records={filteredRecords}
+            onClose={() => setShowMixCreator(false)}
+            onPlayTrack={(track) => {
+              setCurrentTrack(track);
+              setCurrentAlbum(null);
+            }}
+            isPlayerVisible={!!(currentTrack || currentAlbum)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Bottom-Docked Music Player */}
+      <AnimatePresence>
+        {(currentTrack || currentAlbum) && (
+          <MusicPlayer
+            currentTrack={currentTrack}
+            currentAlbum={currentAlbum}
+            onClose={() => {
+              setCurrentTrack(null);
+              setCurrentAlbum(null);
+            }}
+          />
         )}
       </AnimatePresence>
     </div>

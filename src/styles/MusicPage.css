@@ -66,6 +66,22 @@
     background: rgba(93, 93, 255, 0.2);
 }
 
+/* GetSongBPM Attribution */
+.getsongbpm-attribution {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    margin-top: 0.25rem;
+    font-weight: 400;
+}
+
+.getsongbpm-attribution:hover {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: underline;
+}
+
 /* Charts Area */
 .music-charts-container {
     display: grid;
