@@ -13,8 +13,6 @@ const MusicPage = () => {
   const [filter, setFilter] = useState(null); // { type: 'year' | 'added' | 'style' | 'genre', value: number | string }
   // State for sorting
   const [sortBy, setSortBy] = useState('added-desc'); // format: 'field-direction'
-  // State for Spotify player modal
-  const [selectedAlbum, setSelectedAlbum] = useState(null); // Album to play in modal
   // State for mix creator
   const [showMixCreator, setShowMixCreator] = useState(false);
   // State for bottom-docked music player
@@ -570,7 +568,10 @@ const MusicPage = () => {
                   {item.spotify_id && (
                     <button
                       className="spotify-play-btn"
-                      onClick={() => setSelectedAlbum(item)}
+                      onClick={() => {
+                        setCurrentAlbum(item);
+                        setCurrentTrack(null);
+                      }}
                       aria-label="Play on Spotify"
                       title="Play on Spotify"
                     >
@@ -602,53 +603,6 @@ const MusicPage = () => {
           )}
         </div>
       </section>
-
-      {/* Spotify Player Modal */}
-      {/* Spotify Player Modal */}
-      <AnimatePresence>
-        {selectedAlbum && (
-          <motion.div
-            className="spotify-modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedAlbum(null)}
-          >
-            <motion.div
-              className="spotify-modal-content"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="spotify-modal-close"
-                onClick={() => setSelectedAlbum(null)}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-              <h3 className="spotify-modal-title">{selectedAlbum.title}</h3>
-              <p className="spotify-modal-artist">{selectedAlbum.artists}</p>
-
-              <iframe
-                src={`https://open.spotify.com/embed/album/${selectedAlbum.spotify_id}?utm_source=generator&theme=0`}
-                width="100%"
-                height="380"
-                frameBorder="0"
-                allowFullScreen
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                title={`Spotify player for ${selectedAlbum.title}`}
-              />
-
-              <p className="spotify-modal-note">
-                🎵 Powered by Spotify · 30-second previews available to all users
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Mix Creator Modal */}
       <AnimatePresence>
