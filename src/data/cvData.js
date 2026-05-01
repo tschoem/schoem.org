@@ -1,11 +1,13 @@
 export const cvData = {
   profile: {
     name: "Thomas Schoemaecker",
-    title: "Pre-sales and Solution Engineering Specialist",
+    title: "Head of Customer Success @ Swarmia | Helping engineering leaders realise AI impact and engineering effectiveness at scale",
     headlines: ["Experienced Leader", "Executive MBA", "Hands-on Builder", "Highly technical"],
-    summary: `Senior Pre-sales and Solutions Engineering Leader with over 20 years of diverse experience spanning Software Engineering, <b>SaaS</b>, and Digital Transformation. My leadership philosophy is rooted in building deep trust and fostering high levels of <b>psychological safety</b>, empowering teams to maintain exceptional execution standards while navigating complex commercial challenges.
+    summary: `I lead Customer Success at Swarmia, partnering with engineering leaders to turn engineering intelligence into measurable business outcomes. My focus is helping customers realize value from their investments in engineering effectiveness by improving visibility, strengthening developer productivity and developer experience, and understanding the real impact of AI on software delivery.
 
-I operate as a strategic partner and 'player-coach,' equally comfortable architecting technical solutions, driving <b>Go-To-Market (GTM)</b> strategies, and consulting with C-level executives on revenue growth. A natural bridge-builder, I excel at translating complex technical concepts, including emerging <b>Artificial Intelligence (AI)</b> and automation technologies into tangible business value. Driven by a constant growth mindset, I am passionate about scaling products, optimizing sales cycles, and delivering world-class customer experiences across the <b>EMEA</b> region and beyond.`,
+With 20+ years of experience across software engineering, SaaS, digital transformation, and go-to-market leadership, I bring a blend of technical depth, commercial acumen, and executive partnership. I'm most effective at the intersection of strategy and execution: helping customers navigate complex change, align teams around meaningful outcomes, and translate technical concepts into business value.
+
+My leadership style is grounded in trust, psychological safety, and high standards. I believe the best customer outcomes come from strong relationships, clear thinking, and practical action — not vanity metrics or noise. I'm especially energized by helping organizations move beyond surface-level productivity conversations to build healthier, more effective engineering systems at scale`,
     slideshowImages: [
       "/images/cv-pics/squad.jpg",
       "/images/cv-pics/testcon1.jpg",
@@ -24,11 +26,21 @@ I operate as a strategic partner and 'player-coach,' equally comfortable archite
   },
   experience: [
     {
+      id: 0,
+      role: "Head of Customer Success",
+      company: "Swarmia",
+      logo: "https://logo.clearbit.com/swarmia.com",
+      period: "APRIL 2026 - PRESENT",
+      description: [
+        "I lead the Customer Success function at Swarmia, helping engineering leaders connect delivery data with the outcomes that matter most. I work closely with customers on adoption, value realisation, and expansion, with a strong focus on AI impact, engineering effectiveness, and creating durable ways of working across teams."
+      ]
+    },
+    {
       id: 1,
       role: "Head of Customer Engineering - Enterprise EMEA",
       company: "BrowserStack",
       logo: "https://logo.clearbit.com/browserstack.com",
-      period: "SEPTEMBER 2022 - PRESENT",
+      period: "SEPTEMBER 2022 - APRIL 2026",
       description: [
         "<b>Leadership & GTM Strategy:</b> Leading a high-performing team of Customer Engineers across EMEA and LATAM. Collaborating with Sales and Product to define Go-To-Market (GTM) strategies and ensure technical alignment with commercial targets.",
         "<b>AI Product Adoption:</b> Driving the technical sales and adoption of AI Agents and AI-powered testing solutions. helping customers integrate autonomous testing agents into their workflows to accelerate Quality Engineering.",

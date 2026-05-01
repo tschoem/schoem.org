@@ -1,5 +1,280 @@
 [
   {
+    "id": 4968730,
+    "instance_id": 2134530410,
+    "title": "Five Leaves Left",
+    "artists": "Nick Drake",
+    "year": 2013,
+    "genres": [
+      "Rock",
+      "Folk, World, & Country"
+    ],
+    "styles": [
+      "Folk Rock",
+      "Folk"
+    ],
+    "cover_image": "https://i.discogs.com/ZsI09K7jlvk-Z6KbO7eQ7hJNzMumu8g0UdK5I8j0iFs/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ5Njg3/MzAtMTQzODYxMjM5/Mi0yNDg4LmpwZWc.jpeg",
+    "labels": "Island Records, Island Records",
+    "added": "2026-04-13T03:43:38-07:00",
+    "tracklist": [
+      {
+        "position": "A1",
+        "title": "Time Has Told Me",
+        "duration": "3:56",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A2",
+        "title": "River Man",
+        "duration": "4:28",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A3",
+        "title": "Three Hours",
+        "duration": "6:01",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A4",
+        "title": "Way To Blue",
+        "duration": "3:05",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A5",
+        "title": "Day Is Done",
+        "duration": "2:22",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B1",
+        "title": "'Cello Song",
+        "duration": "3:58",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B2",
+        "title": "The Thoughts Of Mary Jane",
+        "duration": "3:12",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B3",
+        "title": "Man In A Shed",
+        "duration": "3:49",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B4",
+        "title": "Fruit Tree",
+        "duration": "4:42",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B5",
+        "title": "Saturday Sun",
+        "duration": "4:00",
+        "type_": "track",
+        "artist": null
+      }
+    ],
+    "tracklist_count": 10
+  },
+  {
+    "id": 5030690,
+    "instance_id": 2134518984,
+    "title": "Breakfast In America",
+    "artists": "Supertramp",
+    "year": 2013,
+    "genres": [
+      "Rock"
+    ],
+    "styles": [
+      "Pop Rock"
+    ],
+    "cover_image": "https://i.discogs.com/J5in444jVuMgJQk8Ucfm76FjPlgFnDiSLEuUTryclns/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTUwMzA2/OTAtMTQ2NTgyNDQy/Ni0zMzMyLmpwZWc.jpeg",
+    "labels": "A&M Records",
+    "added": "2026-04-13T02:42:21-07:00",
+    "tracklist": [
+      {
+        "position": "A1",
+        "title": "Gone Hollywood",
+        "duration": "5:20",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A2",
+        "title": "The Logical Song",
+        "duration": "4:11",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A3",
+        "title": "Goodbye Stranger",
+        "duration": "5:50",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A4",
+        "title": "Breakfast In America",
+        "duration": "2:39",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A5",
+        "title": "Oh Darling",
+        "duration": "4:02",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B1",
+        "title": "Take The Long Way Home",
+        "duration": "5:08",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B2",
+        "title": "Lord Is It Mine",
+        "duration": "4:10",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B3",
+        "title": "Just Another Nervous Wreck",
+        "duration": "4:25",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B4",
+        "title": "Casual Conversations",
+        "duration": "2:58",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B5",
+        "title": "Child Of Vision",
+        "duration": "7:31",
+        "type_": "track",
+        "artist": null
+      }
+    ],
+    "tracklist_count": 10
+  },
+  {
+    "id": 26595347,
+    "instance_id": 2121156299,
+    "title": "Aşk",
+    "artists": "Altın Gün",
+    "year": 2023,
+    "genres": [
+      "Rock",
+      "Funk / Soul",
+      "Pop",
+      "Folk, World, & Country"
+    ],
+    "styles": [
+      "Funk",
+      "Disco",
+      "Folk",
+      "Psychedelic"
+    ],
+    "cover_image": "https://i.discogs.com/UttvhzDdKhrlxQ7AwgplEr0o4e_ZvxTb4ZzGP81nbss/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI2NTk1/MzQ3LTE2ODQxNzY4/NjctNDI3OC5qcGVn.jpeg",
+    "labels": "Glitterbeat",
+    "added": "2026-03-06T01:07:28-08:00",
+    "tracklist": [
+      {
+        "position": "A1",
+        "title": "Badi Sabah Olmadan",
+        "duration": "4:43",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A2",
+        "title": "Su Siziyor",
+        "duration": "4:04",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A3",
+        "title": "Leylim Ley",
+        "duration": "4:14",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A4",
+        "title": "Dere Geliyor",
+        "duration": "3:46",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A5",
+        "title": "Çit Çit Çedene",
+        "duration": "4:05",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B1",
+        "title": "Rakiya Su Katamam",
+        "duration": "3:40",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B2",
+        "title": "Canim Oy",
+        "duration": "3:23",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B3",
+        "title": "Kalk Gidelim",
+        "duration": "4:32",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B4",
+        "title": "Güzelliğin On Para Etmez",
+        "duration": "3:46",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B5",
+        "title": "Doktor Civanim",
+        "duration": "3:55",
+        "type_": "track",
+        "artist": null
+      }
+    ],
+    "tracklist_count": 10
+  },
+  {
     "id": 16714599,
     "instance_id": 2104796659,
     "title": "P'ti Sega EP",
@@ -3233,7 +3508,7 @@
       "Latin"
     ],
     "styles": [],
-    "cover_image": "https://i.discogs.com/dIQbVEL7mPc9npHU5SyGO99Ntaetai_mgbC2kyh-4x0/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI0ODYx/NjU5LTE3NTA1OTE1/MzUtNzYwMi5qcGVn.jpeg",
+    "cover_image": "https://i.discogs.com/njGr3wJ_lkSAraW42wNBnhj2jjqxM4P2TGqgj-t0wX8/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI0ODYx/NjU5LTE2NjYwOTEx/MzgtOTY2Ni5qcGVn.jpeg",
     "labels": "Pura Vida Sounds, Heavenly Sweetness",
     "added": "2022-10-26T06:46:34-07:00",
     "spotify_id": "2WgEVB6gkJ8ijn08kafvrf",
@@ -11935,8 +12210,7 @@
       "Electronic"
     ],
     "styles": [
-      "Trip Hop",
-      "Downtempo"
+      "Trip Hop"
     ],
     "cover_image": "https://i.discogs.com/XW0P0RnHiLKeqEShQMkfQ8uClNLJzEFUSNA8EcTgCMA/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIyODQw/LTE1NTMyMjk0MDQt/OTA0OS5qcGVn.jpeg",
     "labels": "Go! Beat",
@@ -14096,7 +14370,7 @@
     "styles": [
       "Hard Rock"
     ],
-    "cover_image": "https://i.discogs.com/uRSQUJhuDRQHqaLr1Jb-pQ9Fb8H3i2F11r5QvQ3YPCo/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU5NzA5/NS0xMzY5MjEyNjI0/LTI0NDYuanBlZw.jpeg",
+    "cover_image": "https://i.discogs.com/fhiwFh4DoecOC1q662miNrhImlvBeRF9IWoahKVA2s0/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU5NzA5/NS0xNzcyMzg3MDE4/LTg1NzYuanBlZw.jpeg",
     "labels": "HÖR ZU, Harvest",
     "added": "2018-02-23T08:55:52-08:00",
     "spotify_id": "2bjTVISSsvwia7uxrrEsuQ",
@@ -14921,7 +15195,8 @@
     "artists": "Led Zeppelin",
     "year": 2014,
     "genres": [
-      "Rock"
+      "Rock",
+      "Blues"
     ],
     "styles": [
       "Blues Rock",
@@ -16711,7 +16986,7 @@
     "id": 10102328,
     "instance_id": 281932925,
     "title": "Lamomali",
-    "artists": "-M-, Toumani Diabaté, Sidiki Diabaté (2), Fatoumata Diawara",
+    "artists": "Lamomali",
     "year": 2017,
     "genres": [
       "Pop",
