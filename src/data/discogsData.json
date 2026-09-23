@@ -1,5 +1,94 @@
 [
   {
+    "id": 37855341,
+    "instance_id": 2168508246,
+    "title": "Movin' On",
+    "artists": "Souleance",
+    "year": 2025,
+    "genres": [
+      "Electronic",
+      "Funk / Soul"
+    ],
+    "styles": [
+      "Gospel",
+      "House"
+    ],
+    "cover_image": "https://i.discogs.com/k8gU81-vAtD3Oq3SbcEAmK16jjYdujOKvNsyto6Vx54/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM3ODU1/MzQxLTE3ODkwNzA4/MTUtOTYxMi5qcGVn.jpeg",
+    "labels": "Musique Large",
+    "added": "2026-07-29T01:32:31-07:00",
+    "tracklist": [
+      {
+        "position": "1",
+        "title": "MOVIN' ON",
+        "duration": "7:59",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "2",
+        "title": "HOLDIN' ON",
+        "duration": "5:45",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "3",
+        "title": "KEEPIN' ON",
+        "duration": "5:27",
+        "type_": "track",
+        "artist": null
+      }
+    ],
+    "tracklist_count": 3
+  },
+  {
+    "id": 14272099,
+    "instance_id": 2153435755,
+    "title": "Life Of The Plants",
+    "artists": "Lee Perry",
+    "year": 2019,
+    "genres": [
+      "Reggae"
+    ],
+    "styles": [
+      "Dub"
+    ],
+    "cover_image": "https://i.discogs.com/w5ewlNotHRJdvG2fOvZvQWP5JandiMhnnc4tyIpqwHY/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE0Mjcy/MDk5LTE1NzExNzc1/MDAtNzIyNS5qcGVn.jpeg",
+    "labels": "Stones Throw Records",
+    "added": "2026-06-09T03:45:14-07:00",
+    "tracklist": [
+      {
+        "position": "A1",
+        "title": "Life Of The Plants",
+        "duration": "9:47",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "A2",
+        "title": "No Age",
+        "duration": "9:53",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B1",
+        "title": "Magik",
+        "duration": "8:34",
+        "type_": "track",
+        "artist": null
+      },
+      {
+        "position": "B2",
+        "title": "No Age Dub",
+        "duration": "9:53",
+        "type_": "track",
+        "artist": null
+      }
+    ],
+    "tracklist_count": 4
+  },
+  {
     "id": 4968730,
     "instance_id": 2134530410,
     "title": "Five Leaves Left",
@@ -1560,7 +1649,7 @@
       "African",
       "Cumbia"
     ],
-    "cover_image": "https://i.discogs.com/e_Y6dZdNXfWnavOmc7HUlM4sLazjXbYX9zfZPFYnCBk/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMyNTM3/NzIxLTE3MzQ1MzEw/MTAtNTE5MS5qcGVn.jpeg",
+    "cover_image": "https://i.discogs.com/C-_lPBhCsHmNFMJUpN8eIOV-sMP890RNv3-vhEl2YiM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMyNTM3/NzIxLTE3ODEwMjI4/NzctNTYyMi5qcGVn.jpeg",
     "labels": "Pura Vida Sounds, Heavenly Sweetness",
     "added": "2025-05-03T06:48:40-07:00",
     "spotify_id": "33v0CmwAp1lqzhL0O6Ckh0",
@@ -12638,7 +12727,8 @@
       "Disco",
       "Funk",
       "Synth-pop",
-      "Electro"
+      "Electro",
+      "French House"
     ],
     "cover_image": "https://i.discogs.com/rqE3sfigR3-tErFq1l1AV_4XYDHpjNV6PwD0EcENccM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ1NzAz/NjYtMTc0OTM3MjMx/Ny0xODg1LmpwZWc.jpeg",
     "labels": "Columbia, Columbia, Sony Music",
@@ -13911,7 +14001,7 @@
       "Electro",
       "French House"
     ],
-    "cover_image": "https://i.discogs.com/WX97KU1dB5I9VvpH2lk6c5jQ2bc5c8onJgicxe28EMk/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI4Nzkt/MTIzNjAzNTQ3Mi5q/cGVn.jpeg",
+    "cover_image": "https://i.discogs.com/3Gs9bPb5T646LLQn9sctMmU-As0xbcx8VMCblKfgjvk/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI4Nzkt/MTc4ODc5NTYwNS0y/OTc4LmpwZWc.jpeg",
     "labels": "Virgin, Virgin, Virgin",
     "added": "2018-02-23T08:58:55-08:00",
     "spotify_id": "2noRn2Aes5aoNVsU6iWThc",
