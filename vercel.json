@@ -1,23 +1,7 @@
 {
     "rewrites": [
         {
-            "source": "/(.*)\\.(php|alfa|asp|aspx|jsp|cgi)",
-            "destination": "/__not_found"
-        },
-        {
-            "source": "/\\.(git|env|svn|hg|vscode|idea)(.*)",
-            "destination": "/__not_found"
-        },
-        {
-            "source": "/(.*)/\\.(git|env|svn|hg|vscode|idea)(.*)",
-            "destination": "/__not_found"
-        },
-        {
-            "source": "/(wp-admin|wp-content|wp-includes|sftp-config\\.json)(.*)",
-            "destination": "/__not_found"
-        },
-        {
-            "source": "/((?!api/.*).*)",
+            "source": "/((?!api/|.*\\.(?:php|alfa|asp|aspx|jsp|cgi)$|(?:.*/)?\\.(?:git|env|svn|hg|vscode|idea)|wp-admin|wp-content|wp-includes|sftp-config\\.json).*)",
             "destination": "/index.html"
         }
     ]
