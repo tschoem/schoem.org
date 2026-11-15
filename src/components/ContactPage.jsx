@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import '../styles/ContactPage.css';
 
@@ -6,8 +6,13 @@ const ContactPage = () => {
     const [formState, setFormState] = useState({
         name: '',
         email: '',
-        message: ''
+        message: '',
+        website: '' // honeypot: hidden from humans, bots fill it in
     });
+    const formStartedAt = useRef(0);
+    useEffect(() => {
+        formStartedAt.current = Date.now();
+    }, []);
     const [status, setStatus] = useState(''); // 'sending', 'success', 'error'
 
     const handleChange = (e) => {
@@ -27,14 +32,15 @@ const ContactPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formState),
+                body: JSON.stringify({ ...formState, formStartedAt: formStartedAt.current }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 setStatus('success');
-                setFormState({ name: '', email: '', message: '' });
+                setFormState({ name: '', email: '', message: '', website: '' });
+                formStartedAt.current = Date.now();
             } else {
                 console.error('Server Error:', data.error);
                 setStatus('error'); // Add error handling state eventually
@@ -144,6 +150,19 @@ const ContactPage = () => {
                                     placeholder="How can I help you?"
                                     rows="5"
                                 ></textarea>
+                            </div>
+
+                            <div className="form-hp" aria-hidden="true">
+                                <label htmlFor="website">Website</label>
+                                <input
+                                    type="text"
+                                    id="website"
+                                    name="website"
+                                    value={formState.website}
+                                    onChange={handleChange}
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                />
                             </div>
 
                             <button type="submit" className="submit-btn" disabled={status === 'sending'}>

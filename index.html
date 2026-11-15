@@ -11,6 +11,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <title>Thomas Schoemaecker - Portfolio</title>
+  <meta name="description" content="Thomas Schoemaecker: engineer, sailor, mélomane. CV, leadership principles, a map of my life and my vinyl collection." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Thomas Schoemaecker - Portfolio" />
+  <meta property="og:description" content="Engineer, sailor, mélomane. CV, leadership principles, a map of my life and my vinyl collection." />
+  <meta property="og:image" content="https://www.schoem.org/images/tom_profile.jpeg" />
+  <meta name="twitter:card" content="summary" />
   <style>
     /* Emergency Chrome fix - force initial render */
     * {
@@ -33,6 +39,18 @@
   <a href="https://getsongbpm.com/" rel="noopener" class="crawler-link">GetSongBPM</a>
   
   <div id="root"></div>
+  <!-- Fallback for crawlers and visitors without JavaScript -->
+  <noscript>
+    <h1>Thomas Schoemaecker</h1>
+    <p>Engineer. Sailor. Mélomane.</p>
+    <nav>
+      <a href="/cv">Resume / CV</a>
+      <a href="/leadership">Leadership</a>
+      <a href="/map">Life Map</a>
+      <a href="/music">Music</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </noscript>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

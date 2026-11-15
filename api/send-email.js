@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import validator from 'validator';
 import { validateOrigin, getAllowedOrigins } from './security-utils.js';
+import { checkBotSignals, looksLikeGibberish, isRateLimited, getClientIp } from './spam-guard.js';
 
 // Simple HTML tag stripper for server-side (avoids jsdom ESM issues)
 // This is sufficient for XSS prevention when we just need to remove HTML tags
@@ -29,15 +30,30 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // CSRF protection: Validate origin
-    if (!validateOrigin(req, getAllowedOrigins())) {
+    // CSRF protection: Validate origin. Browsers always send Origin on a POST from
+    // the form, so a missing Origin means a script posting directly to the API.
+    if (!req.headers.origin || !validateOrigin(req, getAllowedOrigins())) {
         return res.status(403).json({ error: 'Forbidden: Invalid origin' });
     }
 
-    const { name, email, message } = req.body;
+    const ip = getClientIp(req);
+    if (await isRateLimited(ip)) {
+        return res.status(429).json({ error: 'Too many messages. Please try again later.' });
+    }
 
-    if (!name || !email || !message) {
+    const { name, email, message, website, formStartedAt } = req.body || {};
+
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string'
+        || !name || !email || !message) {
         return res.status(400).json({ error: 'Please fill in all fields.' });
+    }
+
+    // Bot checks: pretend success so bots don't learn to adapt
+    const botReason = checkBotSignals({ website, formStartedAt })
+        || (looksLikeGibberish(message) ? 'gibberish' : null);
+    if (botReason) {
+        console.log(`Contact form spam dropped (${botReason}) from ${ip}`);
+        return res.status(200).json({ message: 'Email sent successfully!' });
     }
 
     // Validate and sanitize inputs
