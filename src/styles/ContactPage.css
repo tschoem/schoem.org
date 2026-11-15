@@ -221,3 +221,11 @@
         order: -1;
     }
 }
+/* Honeypot field: off-screen for humans, still present for bots */
+.form-hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
